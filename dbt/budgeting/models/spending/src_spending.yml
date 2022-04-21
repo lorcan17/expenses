@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+ -  name: splitwise_expenses
+    database: python-splitwise
+    schema: budgeting
+    tables:
+        - name: splitwise_expenses
+          loaded_at_field: date
+          freshness:
+            warn_after: {count: 1, period: day}
+            error_after: {count: 5, period: day}
+        - name: dim_splitwise_category
