@@ -7,13 +7,19 @@ Ensure you keep key safe
 Add env.example variables to .env files and github secrets
 Alternatively do this: https://docs.github.com/en/actions/security-guides/encrypted-secrets#limits-for-secrets
 
-## Expenses
+## Spending
 - Export new expenses from GoogleSheet
 - Import into Splitwise
 - Export all expenses into BigQuery
 
 ## Income
 - Export all income into BigQuery
+
+# Google DataStudio
+
+## Connections
+SplitWise
+GoogleCloud
 
 
 
@@ -24,3 +30,5 @@ brew tap dbt-labs/dbt
 brew install dbt-bigquery
 
 pip install dbt-bigquery
+sudo rm -rf /Library/Developer/CommandLineTools
+ sudo xcode-select --install
