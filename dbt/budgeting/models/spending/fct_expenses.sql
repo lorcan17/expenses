@@ -13,7 +13,11 @@ select
   ex.exp_id,
   --cat.cat_name,
   --cat.subcat_name,
-  cat.cat_name,
+  CASE
+    WHEN  LOWER(ex.exp_desc) LIKE '%.hol%' OR
+          LOWER(ex.exp_desc) LIKE '%hol.%' THEN "Holiday"
+    ELSE cat.cat_name
+    END AS cat_name,
   CASE
     WHEN  LOWER(ex.exp_desc) LIKE '%.pub%' OR
           LOWER(ex.exp_desc) LIKE '%pub.%' THEN "Pub"
@@ -25,13 +29,8 @@ select
           LOWER(ex.exp_desc) LIKE '%imm.%' THEN "Immigration Costs"
     ELSE ex.subcat_name
     END as subcat_name,
-  CASE 
-    WHEN subcat_name = 'Holiday' | subcat_name = 'Big Purchase' | 
-         subcat_name = 'Taxes' | subcat_name = 'Immigration Costs' 
-    THEN 0
-    ELSE 1 END AS daily_spending_flag 
   ex.exp_desc,
-  ifnull(creation_method,'python')  as  creation_method,
+  ex.creation_method,
   ex.exp_cost ,
   ex.exp_currency,
   --user_id,
