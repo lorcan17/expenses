@@ -15,9 +15,3 @@ google_funcs.big_query_load_spending(
                     client,
                     table_id = "budgeting.splitwise_expenses",
                     dataframe = export)
-
-## Upload category
-#google_funcs.big_query_load_spending(
-#                    client,
-#                    table_id = "budgeting.dim_splitwise_category",
-#                    dataframe = cat_dim)
