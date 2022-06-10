@@ -7,6 +7,7 @@ category as (
   select * from {{ source('splitwise_expenses', 'dim_splitwise_category') }}
 )
 
+,fct as (
 select
   ex.date,
   --deleted_date,
@@ -25,11 +26,6 @@ select
           LOWER(ex.exp_desc) LIKE '%imm.%' THEN "Immigration Costs"
     ELSE ex.subcat_name
     END as subcat_name,
-  CASE 
-    WHEN subcat_name = 'Holiday' | subcat_name = 'Big Purchase' | 
-         subcat_name = 'Taxes' | subcat_name = 'Immigration Costs' 
-    THEN 0
-    ELSE 1 END AS daily_spending_flag 
   ex.exp_desc,
   ifnull(creation_method,'python')  as  creation_method,
   ex.exp_cost ,
@@ -46,3 +42,10 @@ select
   where 1=1
   AND deleted_date IS NULL
   AND ifnull(creation_method,'python') NOT IN ('debt_consolidation','payment')
+)
+  select *,
+  CASE
+    WHEN subcat_name in ('Holiday', 'Big Purchase', 'Taxes', 'Immigration Costs')
+    THEN 0
+    ELSE 1 END AS daily_spending_flag
+  FROM fct
