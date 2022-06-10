@@ -1,6 +1,8 @@
 with max_date as (
 
-      select date(max(date)) as max_date from {{ source('splitwise_expenses', 'splitwise_expenses') }}
+      select  date(min(date)) as min_date,
+              date(max(date)) as max_date
+      from {{ source('bigquery', 'splitwise_expenses') }}
 
   )
 ,
@@ -9,17 +11,23 @@ generic_date_dim AS (
 SELECT
   FORMAT_DATE('%F', d) as id,
   d AS full_date,
-  EXTRACT(YEAR FROM d) AS year,
-  EXTRACT(WEEK FROM d) AS year_week,
-  EXTRACT(DAY FROM d) AS year_day,
-  EXTRACT(YEAR FROM d) AS fiscal_year,
-  FORMAT_DATE('%Q', d) as fiscal_qtr,
-  EXTRACT(MONTH FROM d) AS month,
+  -- date nums
+  EXTRACT(YEAR FROM d) AS year_num,
+  EXTRACT(QUARTER FROM d) AS quarter_num,
+  EXTRACT(MONTH FROM d) AS month_num,
+  EXTRACT(WEEK FROM d) AS week_num,
+  EXTRACT(DAY FROM d) AS day_num,
+  -- date truncs
+  DATE_TRUNC(d, YEAR) as year_date,
+  DATE_TRUNC(d, QUARTER) as quarter_date,
+  DATE_TRUNC(d, MONTH) as month_date,
+  DATE_TRUNC(d, WEEK) as week_date,
+  -- date strings
   FORMAT_DATE('%Y %b', d) as year_month,
   FORMAT_DATE('%B', d) as month_name,
-  FORMAT_DATE('%w', d) AS week_day,
   FORMAT_DATE('%A', d) AS day_name,
-  (CASE WHEN FORMAT_DATE('%A', d) IN ('Sunday', 'Saturday') THEN 0 ELSE 1 END) AS day_is_weekday,
+  CASE WHEN FORMAT_DATE('%A', d) IN ('Sunday', 'Saturday')
+        THEN 0 ELSE 1 END AS day_is_weekday,
 FROM (
   SELECT
     *
@@ -36,4 +44,4 @@ WHEN
 ELSE year_month
 END AS year_month_report FROM generic_date_dim dd
 CROSS JOIN max_date a
-WHERE dd.full_date <= a.max_date AND dd.full_date > '2020-03-01'
+WHERE dd.full_date <= a.max_date AND dd.full_date >= a.min_date

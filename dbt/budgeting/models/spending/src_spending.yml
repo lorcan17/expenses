@@ -1,11 +1,21 @@
 version: 2
 
 sources:
- -  name: splitwise_expenses
+ -  name: bigquery
     database: python-splitwise
     schema: budgeting
     tables:
         - name: splitwise_expenses
+          loaded_at_field: date
+          freshness:
+            warn_after: {count: 1, period: day}
+            error_after: {count: 5, period: day}
+        - name: gsheet_savings
+          loaded_at_field: date
+          freshness:
+            warn_after: {count: 1, period: day}
+            error_after: {count: 5, period: day}
+        - name: gsheet_income
           loaded_at_field: date
           freshness:
             warn_after: {count: 1, period: day}
