@@ -1,10 +1,8 @@
-from functions import sw_funcs, google_funcs
+from functions import google_funcs
 import pandas as pd
-from splitwise.expense import Expense
-from splitwise.expense import ExpenseUser
 
 spreadsheet_id = '1CpbYfhi6bbXz5oqMs6mJs4y5ETlq2-mSCkLaU_9Wo68'
-gsheet_export_range = 'Savings!A1:E1000' #Edit this to be just the cell G14
+gsheet_export_range = 'Savings!A1:F1000' #Edit this to be just the cell G14
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 gsheet = google_funcs.gsheet_connect(keys)
