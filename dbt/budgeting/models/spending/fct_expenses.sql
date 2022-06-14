@@ -19,7 +19,9 @@ select
     WHEN  LOWER(ex.exp_desc) LIKE '%.pub%' OR
           LOWER(ex.exp_desc) LIKE '%pub.%' THEN "Pub"
     WHEN  LOWER(ex.exp_desc) LIKE '%.big%' OR
-          LOWER(ex.exp_desc) LIKE '%big.%' THEN "Big Purchase"
+          LOWER(ex.exp_desc) LIKE '%big.%'
+          --LOWER(ex.subcat_name) = 'taxes'
+          THEN "Big Purchase"
     WHEN  LOWER(ex.exp_desc) LIKE '%.hol%' OR
           LOWER(ex.exp_desc) LIKE '%hol.%' THEN "Holiday"
     WHEN  LOWER(ex.exp_desc) LIKE '%.imm%' OR
@@ -32,10 +34,12 @@ select
   ex.exp_currency,
   --user_id,
   ex.first_name,
+  ex.first_name as person,
   ex.last_name,
   ex.net_balance,
   ex.paid_share,
   ex.owed_share,
+  ex.owed_share as amount
   -- Number of users in Expense
   from expenses ex
   left join category cat on ex.subcat_id = cat.subcat_id
@@ -47,5 +51,9 @@ select
   CASE
     WHEN subcat_name in ('Holiday', 'Big Purchase', 'Taxes', 'Immigration Costs')
     THEN 0
-    ELSE 1 END AS daily_spending_flag
+    ELSE 1 END AS daily_spending_flag,
+  CASE
+    WHEN subcat_name in ('Big Purchase', 'Taxes')
+    THEN 1
+    ELSE 0 END AS big_purchase_flag
   FROM fct

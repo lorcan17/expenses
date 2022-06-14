@@ -10,10 +10,12 @@ generic_date_dim AS (
 
 SELECT
   FORMAT_DATE('%F', d) as id,
-  d AS full_date,
+  d AS date,
+  DATE_ADD(d,INTERVAL -1 YEAR) date_ly,
   -- date nums
   EXTRACT(YEAR FROM d) AS year_num,
   EXTRACT(QUARTER FROM d) AS quarter_num,
+  CAST(FORMAT_DATE('%Y%m', d) as NUMERIC) as year_month_id,
   EXTRACT(MONTH FROM d) AS month_num,
   EXTRACT(WEEK FROM d) AS week_num,
   EXTRACT(DAY FROM d) AS day_num,
@@ -21,6 +23,7 @@ SELECT
   DATE_TRUNC(d, YEAR) as year_date,
   DATE_TRUNC(d, QUARTER) as quarter_date,
   DATE_TRUNC(d, MONTH) as month_date,
+  DATE_TRUNC(DATE_ADD(d,INTERVAL -1 YEAR), MONTH) month_date_ly,
   DATE_TRUNC(d, WEEK) as week_date,
   -- date strings
   FORMAT_DATE('%Y %b', d) as year_month,
@@ -37,11 +40,12 @@ FROM (
 SELECT *,
 CASE
 WHEN
-  EXTRACT(MONTH FROM dd.full_date) = EXTRACT(MONTH FROM a.max_date) then "Current Month"
-WHEN
-  EXTRACT(MONTH FROM dd.full_date) = EXTRACT(MONTH FROM a.max_date) then "Previous Month"
+  EXTRACT(MONTH FROM dd.date) = EXTRACT(MONTH FROM a.max_date) then "Current Month"
+--WHEN
+  --EXTRACT(MONTH FROM dd.full_date) = EXTRACT(MONTH FROM a.max_date) then "Previous Month"
 
 ELSE year_month
-END AS year_month_report FROM generic_date_dim dd
+END AS year_month_report,
+DENSE_RANK() OVER (ORDER BY month_date ASC) AS month_index FROM generic_date_dim dd
 CROSS JOIN max_date a
-WHERE dd.full_date <= a.max_date AND dd.full_date >= a.min_date
+WHERE dd.date <= a.max_date AND dd.date >= a.min_date
