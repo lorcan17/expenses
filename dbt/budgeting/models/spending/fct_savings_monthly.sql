@@ -5,7 +5,7 @@ with savings as (
 SELECT  month_date,
         month_date_to,
         person,
-        max(amount_cad) as total_savings_amount
+        max(amount) as total_savings_amount
 FROM
       (SELECT
           DATE_TRUNC(date, MONTH) as month_date,
