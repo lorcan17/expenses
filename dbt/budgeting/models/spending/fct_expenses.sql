@@ -46,8 +46,19 @@ select
   where 1=1
   AND deleted_date IS NULL
   AND ifnull(creation_method,'python') NOT IN ('debt_consolidation','payment')
-)
-  select *,
+),
+potential_duplicates as (
+  select
+  date,
+  exp_cost,
+  count(*) as pd_count
+  from (
+    select distinct exp_id, date, exp_cost from fct
+  )
+  group by 1,2
+
+), fct_2 as (
+  select fct.*,
   CASE
     WHEN subcat_name in ('Holiday', 'Big Purchase', 'Taxes', 'Immigration Costs')
     THEN 0
@@ -55,5 +66,9 @@ select
   CASE
     WHEN subcat_name in ('Big Purchase', 'Taxes')
     THEN 1
-    ELSE 0 END AS big_purchase_flag
+    ELSE 0 END AS big_purchase_flag,
+  CASE WHEN pd.pd_count > 1 then 1 else 0 end as potential_dup_flag
   FROM fct
+  left join potential_duplicates pd on fct.date = pd.date and fct.exp_cost = pd.exp_cost
+ )
+ select * from fct_2 
