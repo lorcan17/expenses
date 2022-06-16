@@ -74,6 +74,8 @@ def sw_export_data(s,group_id,limit = 100000):
         #date
         date = e.getDate()
         deleted_date = e.getDeletedAt()
+        created_date = e.getCreatedAt()
+        updated_date = e.getUpdatedAt()
         #expense info
         exp_id = e.getId()
         cat = e.getCategory()
@@ -96,9 +98,10 @@ def sw_export_data(s,group_id,limit = 100000):
             owed_share = u.getOwedShare()
 
             rows.append(
-                [date, deleted_date, exp_id, subcat_id,subcat_name,exp_desc,
-                creation_method, exp_cost ,exp_currency,user_id,
-                 first_name,last_name,net_balance,paid_share,owed_share])
+                [date, deleted_date, created_date, updated_date, exp_id,
+                subcat_id,subcat_name,exp_desc, creation_method, exp_cost,
+                exp_currency,user_id, first_name,last_name,net_balance,paid_share,
+                owed_share])
 
 
 
@@ -111,13 +114,16 @@ def sw_export_data(s,group_id,limit = 100000):
 
     # Clean Export
     export_df = pd.DataFrame(rows,
-    columns=["date", "deleted_date", "exp_id", "subcat_id", "subcat_name","exp_desc",
-    "creation_method", "exp_cost" ,"exp_currency","user_id",
-     "first_name","last_name","net_balance","paid_share","owed_share"])
+    columns=["date", "deleted_date", "created_date","updated_date", "exp_id",
+    "subcat_id", "subcat_name","exp_desc", "creation_method", "exp_cost",
+    "exp_currency","user_id", "first_name","last_name","net_balance",
+    "paid_share", "owed_share"])
 
     df_dtypes = {
     "date" : "datetime64[ns]",
     "deleted_date" : "datetime64[ns]" ,
+    "created_date" : "datetime64[ns]",
+    "updated_date" : "datetime64[ns]" ,
     "exp_id" : "int64",
     "subcat_id" : "int64",
     "subcat_name" : "category",
