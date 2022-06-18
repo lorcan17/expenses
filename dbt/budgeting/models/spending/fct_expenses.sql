@@ -39,14 +39,18 @@ select
   ex.net_balance,
   ex.paid_share,
   ex.owed_share,
-  ex.owed_share as amount
-  -- Number of users in Expense
+  ex.owed_share as amount,
+  case when first_name = 'Lorcan' then paid_share else 0 end as lorcan_paid,
+  case when first_name = 'Grace' then paid_share  else 0 end as grace_paid,
+  case when first_name = 'Lorcan' then owed_share else 0 end as lorcan_owed,
+  case when first_name = 'Grace' then owed_share else 0 end as grace_owed
   from expenses ex
   left join category cat on ex.subcat_id = cat.subcat_id
   where 1=1
   AND deleted_date IS NULL
   AND ifnull(creation_method,'python') NOT IN ('debt_consolidation','payment')
 ),
+
 potential_duplicates as (
   select
   date,
@@ -71,4 +75,4 @@ potential_duplicates as (
   FROM fct
   left join potential_duplicates pd on fct.date = pd.date and fct.exp_cost = pd.exp_cost
  )
- select * from fct_2 
+ select * from fct_2
