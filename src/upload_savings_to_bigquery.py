@@ -1,7 +1,9 @@
 from functions import google_funcs
 import pandas as pd
+from dotenv import load_dotenv
+load_dotenv()
 
-spreadsheet_id = '1CpbYfhi6bbXz5oqMs6mJs4y5ETlq2-mSCkLaU_9Wo68'
+spreadsheet_id = os.environ['GSHEET_SHEET_ID']
 gsheet_export_range = 'Savings!A1:F1000' #Edit this to be just the cell G14
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
