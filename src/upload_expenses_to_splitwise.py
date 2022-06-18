@@ -2,8 +2,11 @@ from functions import sw_funcs, google_funcs
 import pandas as pd
 from splitwise.expense import Expense
 from splitwise.expense import ExpenseUser
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-spreadsheet_id = '1CpbYfhi6bbXz5oqMs6mJs4y5ETlq2-mSCkLaU_9Wo68'
+spreadsheet_id = os.environ['GSHEET_SHEET_ID']
 gsheet_export_range = 'Splitwise Bulk Import!G14:L1300' #Edit this to be just the cell G14
 gsheet_import_range = 'Expenses!A2'
 gsheet_clear_range = 'Expenses!A2:G10000'
@@ -133,9 +136,9 @@ for ind in df.index:
      new_expenses_ids.append(expense_id)
      expense_desc.append(desc)
      if  error == "No error":
-         print(f'Expense created for {desc}')
+         print(f'Expense {expense_id} created')
      else:
-        print(f'Expense not created for {desc} - Error: {error}')
+        print(f'Error: {error}')
 
 new_expense_ids_df  = pd.DataFrame(expense_desc, columns=['Description'])
 new_expense_ids_df['ID'] = new_expenses_ids
