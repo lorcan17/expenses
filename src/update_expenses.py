@@ -59,8 +59,6 @@ for ind in df.index:
 
     expense = Expense()
     expense.id = id
-    expense_info = s.getExpense(id)
-    # new desc
 
     if new_desc:
         expense.setDescription(new_desc)
@@ -81,5 +79,6 @@ for ind in df.index:
         expense.addUser(user1)
         expense.addUser(user2)
 
-    s.updateExpense(expense)
-    print(f'Expense {id} updated')
+    if new_desc or new_cat or new_cost:
+        s.updateExpense(expense)
+        print(f'Expense {id} updated')
