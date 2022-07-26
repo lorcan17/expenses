@@ -14,16 +14,16 @@ select
   ex.exp_id,
   --cat.cat_name,
   --cat.subcat_name,
-  cat.cat_name,
+  CASE
+    WHEN  LOWER(ex.exp_desc) LIKE '%.hol%' OR
+          LOWER(ex.exp_desc) LIKE '%hol.%' THEN "Holiday"
+    WHEN  LOWER(ex.exp_desc) LIKE '%.big%' OR
+          LOWER(ex.exp_desc) LIKE '%big.%' THEN "Big Purchase"
+    ELSE cat.cat_name
+    END AS cat_name,
   CASE
     WHEN  LOWER(ex.exp_desc) LIKE '%.pub%' OR
           LOWER(ex.exp_desc) LIKE '%pub.%' THEN "Pub"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.big%' OR
-          LOWER(ex.exp_desc) LIKE '%big.%'
-          --LOWER(ex.subcat_name) = 'taxes'
-          THEN "Big Purchase"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.hol%' OR
-          LOWER(ex.exp_desc) LIKE '%hol.%' THEN "Holiday"
     WHEN  LOWER(ex.exp_desc) LIKE '%.imm%' OR
           LOWER(ex.exp_desc) LIKE '%imm.%' THEN "Immigration Costs"
     ELSE ex.subcat_name
