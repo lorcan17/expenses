@@ -20,6 +20,7 @@ env:
   SPLITWISE_CONSUMER_SECRET_KEY: '${{ secrets.SPLITWISE_CONSUMER_SECRET_KEY }}'
   SPLITWISE_API_KEY: '${{ secrets.SPLITWISE_API_KEY }}'
   ENCRYPT_KEY: '${{ secrets.ENCRYPT_KEY }}'
+  GSHEET_SHEET_ID: '${{ secrets.GSHEET_SHEET_ID }}'
   
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs: 
