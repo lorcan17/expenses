@@ -1,5 +1,6 @@
 from functions import google_funcs
 import pandas as pd
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
