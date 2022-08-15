@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-gsheet_export_range = 'Splitwise Bulk Import!G14:L1300' #Edit this to be just the cell G14
+gsheet_export_range = 'Splitwise Bulk Import!G14:N1300' #Edit this to be just the cell G14
 gsheet_import_range = 'Expenses!A2'
 gsheet_clear_range = 'Expenses!A2:G10000'
 
@@ -36,6 +36,11 @@ df = df.reset_index(drop=True)
 df =  df.convert_dtypes()
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
 df['Cost'] = pd.to_numeric(df['Cost'])
+df[['split_payer','split_nonpayer']] = df['Split'].str.split('-',expand=True)
+df['split_payer'] = pd.to_numeric(df['split_payer'])
+df['split_nonpayer'] = pd.to_numeric(df['split_nonpayer'])
+
+
 #print(gsheets_export)
 #df = google_funcs.gsheet_export(gsheet,spreadsheet_id,gsheet_export_range,date_format = '%Y%m%d')
 #print(df)
@@ -52,6 +57,13 @@ for ind in new_expenses_df.index:
     cost = new_expenses_df['Cost'][ind]
     who_paid = new_expenses_df['Who Paid?'][ind]
     share = new_expenses_df['Share'][ind]
+    split_nonpayer = new_expenses_df['split_nonpayer'][ind]
+    split_payer = new_expenses_df['split_payer'][ind]
+    payer_cost = cost * (split_payer/100)
+    payer_cost = round(payer_cost,2)
+    nonpayer_cost = cost * (split_nonpayer/100)
+    nonpayer_cost = round(nonpayer_cost,2)
+
     if cost % 0.02 > 0:
         if r.random() >= 0.5:
             split_cost1 = math.floor((cost / 2) * 100) / 100
@@ -60,6 +72,13 @@ for ind in new_expenses_df.index:
     else:
         split_cost1 = cost / 2
     split_cost2 = cost - split_cost1
+
+    if nonpayer_cost + payer_cost != cost:
+        if r.random() >= 0.5:
+            nonpayer_cost = cost - payer_cost
+        else:
+            payer_cost = cost - nonpayer_cost
+
     if who_paid == 'Lorcan':
         lorcan_paid.append(cost)
         grace_paid.append(0)
@@ -69,9 +88,16 @@ for ind in new_expenses_df.index:
     if who_paid == 'Both':
         lorcan_paid.append(split_cost1)
         grace_paid.append(split_cost2)
-    if share == 'Evenly':
-        lorcan_owed.append(split_cost1)
-        grace_owed.append(split_cost2)
+    if share == 'Split':
+        if who_paid == 'Lorcan':
+            lorcan_owed.append(payer_cost)
+            grace_owed.append(nonpayer_cost)
+        if who_paid == 'Grace':
+            grace_owed.append(payer_cost)
+            lorcan_owed.append(nonpayer_cost)
+        if who_paid == 'Both':
+            lorcan_owed.append(payer_cost)
+            grace_owed.append(nonpayer_cost)
     if share == 'Just Lorcan':
         lorcan_owed.append(cost)
         grace_owed.append(0)
