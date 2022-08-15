@@ -132,9 +132,11 @@ for ind in df.index:
      grace_paid = df['Grace Paid'][ind]
      grace_owed = df['Grace Share'][ind]
      cat_id = df['subcat_id'][ind]
+     currency = df['Currency'][ind]
      expense = Expense()
      expense.setCost(cost)
      expense.setDescription(desc)
+     expense.setCurrencyCode(currency)
      expense.group_id = group_id
      expense.date = date
      expense.category_id = cat_id
