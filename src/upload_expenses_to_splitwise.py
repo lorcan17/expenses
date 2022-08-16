@@ -35,6 +35,7 @@ df = df.reset_index(drop=True)
 # Convert Data types
 df =  df.convert_dtypes()
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
+df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
 df[['split_payer','split_nonpayer']] = df['Split'].str.split('-',expand=True)
 df['split_payer'] = pd.to_numeric(df['split_payer'])

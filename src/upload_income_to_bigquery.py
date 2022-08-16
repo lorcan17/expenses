@@ -23,7 +23,7 @@ df = df.reset_index(drop=True)
 # Convert Data types
 df =  df.convert_dtypes()
 df['date'] = pd.to_datetime(df['date'] ,errors = 'coerce',format = '%d/%m/%Y')
-
+df['amount'] = df['amount'].str.replace(',', '')
 df['amount'] = pd.to_numeric(df['amount'])
 
 client = google_funcs.big_query_connect(keys)
