@@ -34,6 +34,8 @@ df = df.reset_index(drop=True)
 
 # Convert Data types
 df =  df.convert_dtypes()
+if df.empty:
+    exit("No expenses to upload to SplitWise")
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
