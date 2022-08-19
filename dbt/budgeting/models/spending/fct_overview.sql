@@ -20,7 +20,7 @@ base as (
 
   select  distinct year_date,
           quarter_date,
-          month_date,xs
+          month_date,
           year_month_id,
           year_month_report,
           person
