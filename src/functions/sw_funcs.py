@@ -67,8 +67,8 @@ def sw_get_category_dim(s):
     cat_df = cat_df.astype(df_dtypes)
     return cat_df
 
-def sw_export_data(s,group_id,limit = 100000):
-    export = s.getExpenses(group_id = group_id, limit=limit) #10000
+def sw_export_data(s,group_id,date_after,date_before,limit = 0):
+    export = s.getExpenses(group_id = group_id, limit=limit, dated_before = date_before, dated_after = date_after) #10000
     rows = []
     for e in export:
         #date

@@ -76,7 +76,7 @@ def big_query_connect(keys):
 
     return client
 
-def big_query_load_spending(client,table_id,dataframe):
+def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE_TRUNCATE"):
     # Example data
     #df = pd.DataFrame({'a': [1,2,4], 'b': ['123', '456', '000']})
 
@@ -87,26 +87,7 @@ def big_query_load_spending(client,table_id,dataframe):
     #return
     #job.result()
     job_config = bigquery.LoadJobConfig(
-    # Specify a (partial) schema. All columns are always written to the
-    # table. The schema is used to assist in data type definitions.
-    #schema=[
-        # Specify the type of columns whose type cannot be auto-detected. For
-        # example the "title" column uses pandas dtype "object", so its
-        # data type is ambiguous.
-
-        #bigquery.SchemaField("exp_desc", bigquery.enums.SqlTypeNames.STRING),
-        #bigquery.SchemaField("category_name", bigquery.enums.SqlTypeNames.STRING),
-        #bigquery.SchemaField("exp_currency", bigquery.enums.SqlTypeNames.STRING),
-        #bigquery.SchemaField("first_name", bigquery.enums.SqlTypeNames.STRING),
-        #bigquery.SchemaField("last_name", bigquery.enums.SqlTypeNames.STRING),
-
-        # Indexes are written if included in the schema by name.
-
-    #],
-    # Optionally, set the write disposition. BigQuery appends loaded rows
-    # to an existing table by default, but with WRITE_TRUNCATE write
-    # disposition it replaces the table with the loaded data.
-    write_disposition="WRITE_TRUNCATE",
+    write_disposition=write_disposition,
     )
     # Change string columns
     dataframe_dtype = pd.DataFrame(dataframe.dtypes)
