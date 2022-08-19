@@ -21,3 +21,5 @@ sources:
             warn_after: {count: 1, period: day}
             error_after: {count: 5, period: day}
         - name: dim_splitwise_category
+        - name: exchange_rate_dim
+          loaded_at_field: date

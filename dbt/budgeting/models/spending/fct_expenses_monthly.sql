@@ -16,7 +16,7 @@ with date as (
 ),
 expense as (
   SELECT * FROM {{ref('fct_expenses')}}
-  where big_purchase_flag = 0
+  --where big_purchase_flag = 0
 ),
 expense_monthly as (
     select
