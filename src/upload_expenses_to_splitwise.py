@@ -40,10 +40,14 @@ if df.empty:
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
-df[['split_payer','split_nonpayer']] = df['Split'].str.split('-',expand=True)
-df['split_payer'] = pd.to_numeric(df['split_payer'])
-df['split_nonpayer'] = pd.to_numeric(df['split_nonpayer'])
-
+try:
+    df[['split_payer','split_nonpayer']] = df['Split'].str.split('-',expand=True)
+    df['split_payer'] = pd.to_numeric(df['split_payer'])
+    df['split_nonpayer'] = pd.to_numeric(df['split_nonpayer'])
+except:
+    print("No splits present")
+    df['split_payer'] = 0
+    df['split_nonpayer'] = 0
 
 #print(gsheets_export)
 #df = google_funcs.gsheet_export(gsheet,spreadsheet_id,gsheet_export_range,date_format = '%Y%m%d')
