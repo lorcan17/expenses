@@ -40,9 +40,9 @@ FROM (
 SELECT *,
 CASE
 WHEN
-  EXTRACT(MONTH FROM dd.date) = EXTRACT(MONTH FROM a.max_date) then "This Month"
+   DATE_TRUNC(dd.date, MONTH) =  DATE_TRUNC(a.max_date,MONTH) then "This Month"
 WHEN
-  EXTRACT(MONTH FROM DATE_ADD(dd.date, INTERVAL 1 MONTH)) = EXTRACT(MONTH FROM a.max_date) then "Last Month"
+  DATE_TRUNC(DATE_ADD(dd.date, INTERVAL 1 MONTH),MONTH) = DATE_TRUNC(a.max_date,MONTH) then "Last Month"
 
 ELSE year_month
 END AS year_month_report,
