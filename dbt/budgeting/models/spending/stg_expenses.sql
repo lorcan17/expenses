@@ -14,8 +14,6 @@ exchange_rate as (
 final as (
 select
   ex.*,
-  cat.subcat_id,
-  cat.subcat_name,
   cat.cat_id,
   cat.cat_name,
   CASE
@@ -37,7 +35,7 @@ select
   CASE WHEN exp_currency = 'CAD' THEN owed_share ELSE (1/cad_gbp_rate) * owed_share END AS owed_share_cad
   FROM expenses ex
   LEFT JOIN
-  exchange_rate er on DATE_TRUNC(ex,date, MONTH) = er.date
+  exchange_rate er on DATE_TRUNC(ex.date, MONTH) = er.date
   LEFT JOIN category cat on ex.subcat_id = cat.subcat_id
   where 1=1
   AND deleted_date IS NULL
@@ -45,7 +43,7 @@ select
 )
 select
   date,
-  delete_date,
+  deleted_date,
   created_date
   updated_date,
   exp_id,

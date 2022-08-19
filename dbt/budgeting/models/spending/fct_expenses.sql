@@ -18,7 +18,6 @@ select
   first_name,
   first_name as person,
   last_name,
-  net_balance,
   paid_share,
   owed_share,
   owed_share_cad as amount,
