@@ -42,7 +42,7 @@ CASE
 WHEN
   EXTRACT(MONTH FROM dd.date) = EXTRACT(MONTH FROM a.max_date) then "This Month"
 WHEN
-  EXTRACT(MONTH FROM dd.date) = EXTRACT(MONTH FROM a.max_date) then "Last Month"
+  EXTRACT(MONTH FROM DATE_ADD(dd.date, INTERVAL 1 MONTH)) = EXTRACT(MONTH FROM a.max_date) then "Last Month"
 
 ELSE year_month
 END AS year_month_report,
