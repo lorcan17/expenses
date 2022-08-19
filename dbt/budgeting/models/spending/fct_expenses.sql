@@ -1,55 +1,32 @@
 with expenses as (
 
-    select * from {{ source('bigquery', 'splitwise_expenses') }}
-
-),
-category as (
-  select * from {{ source('bigquery', 'dim_splitwise_category') }}
+  SELECT * FROM {{ref('stg_expenses')}}
 )
-
-,fct as (
+,
+fct as (
 select
-  ex.date,
-  --deleted_date,
-  ex.exp_id,
-  --cat.cat_name,
-  --cat.subcat_name,
-  CASE
-    WHEN  LOWER(ex.exp_desc) LIKE '%.hol%' OR
-          LOWER(ex.exp_desc) LIKE '%hol.%' THEN "Holiday"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.big%' OR
-          LOWER(ex.exp_desc) LIKE '%big.%' THEN "Big Purchase"
-    ELSE cat.cat_name
-    END AS cat_name,
-  CASE
-    WHEN  LOWER(ex.exp_desc) LIKE '%.pub%' OR
-          LOWER(ex.exp_desc) LIKE '%pub.%' THEN "Pub"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.imm%' OR
-          LOWER(ex.exp_desc) LIKE '%imm.%' THEN "Immigration Costs"
-    ELSE ex.subcat_name
-    END as subcat_name,
-  ex.exp_desc,
-  ifnull(creation_method,'python')  as  creation_method,
-  ex.exp_cost ,
-  ex.exp_currency,
-  --user_id,
-  ex.first_name,
-  ex.first_name as person,
-  ex.last_name,
-  ex.net_balance,
-  ex.paid_share,
-  ex.owed_share,
-  ex.owed_share as amount,
+  date,
+  exp_id,
+  cat_name as cat_name_old,
+  subcat_name as subcat_name_old,
+  cat_name_new as cat_name,
+  subcat_name_new as subcat_name,
+  exp_desc,
+  creation_method,
+  exp_cost ,
+  exp_currency,
+  first_name,
+  first_name as person,
+  last_name,
+  net_balance,
+  paid_share,
+  owed_share,
+  owed_share_cad as amount,
   case when first_name = 'Lorcan' then paid_share else 0 end as lorcan_paid,
   case when first_name = 'Grace' then paid_share  else 0 end as grace_paid,
   case when first_name = 'Lorcan' then owed_share else 0 end as lorcan_owed,
   case when first_name = 'Grace' then owed_share else 0 end as grace_owed
-  from expenses ex
-  left join category cat on ex.subcat_id = cat.subcat_id
-  where 1=1
-  AND deleted_date IS NULL
-  AND ifnull(creation_method,'python') NOT IN ('debt_consolidation','payment')
-),
+  from expenses ex),
 
 potential_duplicates as (
   select

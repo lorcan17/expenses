@@ -18,6 +18,5 @@ select  *,
  )
 
 SELECT s.*,
-CASE WHEN currency = 'CAD' then amount else amount * 1.57 end as amount_cad,
 d.date_to FROM savings s
 inner join data_entries d on s.person = d.person and s.date = d.date
