@@ -20,8 +20,9 @@ base as (
 
   select  distinct year_date,
           quarter_date,
-          month_date,
+          month_date,xs
           year_month_id,
+          year_month_report,
           person
   from {{ref('dim_date')}}
   cross join (
@@ -34,6 +35,7 @@ base as (
 
 select
   b.month_date,
+  b.year_month_report,
   b.person,
   --e.cat_name,
   --e.subcat_name,
