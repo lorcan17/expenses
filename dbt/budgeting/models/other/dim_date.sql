@@ -40,9 +40,9 @@ FROM (
 SELECT *,
 CASE
 WHEN
-  EXTRACT(MONTH FROM dd.date) = EXTRACT(MONTH FROM a.max_date) then "Current Month"
---WHEN
-  --EXTRACT(MONTH FROM dd.full_date) = EXTRACT(MONTH FROM a.max_date) then "Previous Month"
+  EXTRACT(MONTH FROM dd.date) = EXTRACT(MONTH FROM a.max_date) then "This Month"
+WHEN
+  EXTRACT(MONTH FROM dd.full_date) = EXTRACT(MONTH FROM a.max_date) then "Last Month"
 
 ELSE year_month
 END AS year_month_report,
