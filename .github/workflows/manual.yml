@@ -21,9 +21,9 @@ env:
   SPLITWISE_API_KEY: '${{ secrets.SPLITWISE_API_KEY }}'
   ENCRYPT_KEY: '${{ secrets.ENCRYPT_KEY }}'
   GSHEET_SHEET_ID: '${{ secrets.GSHEET_SHEET_ID }}'
-  
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs: 
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
@@ -47,6 +47,12 @@ jobs:
       - name: upload savings to big query py script
         run: |
           python src/upload_savings_to_bigquery.py
+      - name: upload category dim to big query py script
+        run: |
+          python src/upload_category_dim_to_bigquery.py
+      - name: upload exchange rate to big query py script
+        run: |
+          python src/upload_exchange_rate_to_bigquery.py
       - name: Decrypt large secret
         run: ./decrypt_secret.sh
         env:
@@ -55,9 +61,8 @@ jobs:
         run: |
           pip install dbt-bigquery
       - name: Run DBT models
-        run: | 
+        run: |
           cd ./dbt/budgeting
           dbt run --profiles-dir .
       #- name: export index
       #  .... # use crosponding script or actions to help export.
-      
