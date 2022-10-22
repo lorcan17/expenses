@@ -35,8 +35,9 @@ sudo rm -rf /Library/Developer/CommandLineTools
 
  # Spltiwise  Rules
 Description contains
-- .hol Purchased on a holiday -> subcat name Holiday
+- .hol Purchased on / for a holiday -> subcat name Holiday
 - .imm immigration fees -> subcat name Immgration Costs
-- .big - Big Purchase i.e car -> subcat name Big Purchase
+- .big - Big Purchase i.e whistler -> subcat name Big Purchase
 - pub. - Spent at a pub ->-> subcat name Pub
+- asset. - an item we plan to sell in the future i.e car -> cat name Asset
 
