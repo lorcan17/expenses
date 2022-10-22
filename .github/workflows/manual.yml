@@ -35,6 +35,9 @@ jobs:
           python-version: 3.8 #install the python needed
           cache: pip
       - run: pip install -r requirements.txt
+      - name: update expenses py script
+        run: |
+          python src/update_expenses.py
       - name: upload expenses to splitiwse py script
         run: |
           python src/upload_expenses_to_splitwise.py

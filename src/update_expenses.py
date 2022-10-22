@@ -26,6 +26,10 @@ df.columns = df.iloc[header_row]
 df = df.drop(header_row)
 df = df.reset_index(drop=True)
 
+if df.empty:
+    print("No expenses to be updated")
+    exit()
+
 df = df.merge(cat_dim, left_on ='new_cat', right_on = 'cat_name: subcat_name', how = 'left')
 
 # Convert Data types
