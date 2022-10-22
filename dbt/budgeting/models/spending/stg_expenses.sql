@@ -19,15 +19,15 @@ select
   CASE
     WHEN  LOWER(ex.exp_desc) LIKE '%.hol%' OR
           LOWER(ex.exp_desc) LIKE '%hol.%' THEN "Holiday"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.big%' OR
-          LOWER(ex.exp_desc) LIKE '%big.%' THEN "Big Purchase"
+    WHEN  LOWER(ex.exp_desc) LIKE '%.asset%' OR
+          LOWER(ex.exp_desc) LIKE '%asset.%' THEN "Asset"
+    WHEN  LOWER(ex.exp_desc) LIKE '%.imm%' OR
+          LOWER(ex.exp_desc) LIKE '%imm.%' THEN "Immigration Costs"
     ELSE cat.cat_name
     END AS cat_name_new,
   CASE
     WHEN  LOWER(ex.exp_desc) LIKE '%.pub%' OR
           LOWER(ex.exp_desc) LIKE '%pub.%' THEN "Pub"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.imm%' OR
-          LOWER(ex.exp_desc) LIKE '%imm.%' THEN "Immigration Costs"
     ELSE ex.subcat_name
     END as subcat_name_new,
   CASE WHEN exp_currency = 'CAD' THEN exp_cost ELSE (1/cad_gbp_rate) * exp_cost END AS exp_cost_cad,
