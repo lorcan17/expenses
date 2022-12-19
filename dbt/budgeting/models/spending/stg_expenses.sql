@@ -28,6 +28,10 @@ select
   CASE
     WHEN  LOWER(ex.exp_desc) LIKE '%.pub%' OR
           LOWER(ex.exp_desc) LIKE '%pub.%' THEN "Pub"
+    WHEN  LOWER(ex.exp_desc) LIKE '%.togo%' OR
+          LOWER(ex.exp_desc) LIKE '%togo.%' THEN "To go snack / drinks"
+    WHEN  LOWER(ex.exp_desc) LIKE '%.self%' OR
+          LOWER(ex.exp_desc) LIKE '%self.%' THEN "Self Care"
     ELSE ex.subcat_name
     END as subcat_name_new,
   CASE WHEN exp_currency = 'CAD' THEN exp_cost ELSE (1/cad_gbp_rate) * exp_cost END AS exp_cost_cad,

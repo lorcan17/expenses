@@ -10,6 +10,10 @@ from google.cloud import bigquery
 import pandas as pd
 import pytz
 
+# Other 
+import nltk
+from nltk.stem import PorterStemmer
+
 load_dotenv()
 # Connect to GSheets
 def decrypt_creds(file_path):
@@ -41,13 +45,12 @@ def gsheet_connect(keys):
 
     return gsheet
 
-def gsheet_export(keys,spreadsheet_id,gsheet_export_range,date_format = '%Y%m%d'):
+def gsheet_export(keys,spreadsheet_id,gsheet_export_range):
     # Does not work
     # export transaction data from google sheet
     gsheet = gsheet_connect(keys)
     spreadsheet_id = spreadsheet_id
     gsheet_export_range = gsheet_export_range
-    date_format = date_format
     result = gsheet.values().get(spreadsheetId=spreadsheet_id,
                                 range=gsheet_export_range).execute()
     values = result.get('values', [])
@@ -61,10 +64,9 @@ def gsheet_export(keys,spreadsheet_id,gsheet_export_range,date_format = '%Y%m%d'
 
     # Convert Data types
     #gsheets_export =  gsheets_export.convert_dtypes()
-    df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = date_format)
-    df['Cost'] = pd.to_numeric(df['Cost'])
-    return
-    gsheet
+    #df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = date_format)
+    #df['Cost'] = pd.to_numeric(df['Cost'])
+    return df
 
 def big_query_connect(keys):
     SCOPES = ['https://www.googleapis.com/auth/bigquery']
@@ -75,6 +77,11 @@ def big_query_connect(keys):
     client = bigquery.Client(credentials=creds, project=creds.project_id)
 
     return client
+
+def big_query_export(keys,query):
+    client = big_query_connect(keys)
+    query_job = client.query(query).to_dataframe()
+    return query_job
 
 def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE_TRUNCATE"):
     # Example data
@@ -119,3 +126,16 @@ def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE
         table.num_rows, len(table.schema), table_id
     )
 )
+
+def get_nlp_ready(descriptions):
+    tokenized_descriptions = descriptions.str.lower()
+    tokenized_descriptions = tokenized_descriptions.apply(nltk.word_tokenize)
+
+    # Use NLTK's Porter stemmer to stem the tokens
+    stemmer = PorterStemmer()
+    stemmed_tokens= tokenized_descriptions.apply(lambda d : [stemmer.stem(t) for t in d])
+
+    # Join tokens into one string
+    stemmed_tokens = stemmed_tokens.apply(lambda x: ' '.join(x))
+
+    return stemmed_tokens
