@@ -1,0 +1,29 @@
+# This is a basic workflow that is manually triggered
+
+name: Predict Categories
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+env:
+  SPLITWISE_CONSUMER_KEY: '${{ secrets.SPLITWISE_CONSUMER_KEY }}'
+  SPLITWISE_CONSUMER_SECRET_KEY: '${{ secrets.SPLITWISE_CONSUMER_SECRET_KEY }}'
+  SPLITWISE_API_KEY: '${{ secrets.SPLITWISE_API_KEY }}'
+  ENCRYPT_KEY: '${{ secrets.ENCRYPT_KEY }}'
+  GSHEET_SHEET_ID: '${{ secrets.GSHEET_SHEET_ID }}'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner.
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8 #install the python needed
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: update expenses py script
+        run: |
+          python src/predict_categories.py
