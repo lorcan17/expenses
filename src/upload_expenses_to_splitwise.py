@@ -40,6 +40,7 @@ if df.empty:
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
+df['Description'] = df['Description'].str.title()
 # Add 50-50 where Share = "Split" and split is empty
 df.loc[(df["Share"]=="Split") & (df["Split"] == ""),"Split"] = "50-50"
 # Split column "Split"
