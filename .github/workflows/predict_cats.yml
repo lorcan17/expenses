@@ -2,6 +2,8 @@
 
 name: Predict Categories
 
+on: workflow_dispatch
+
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 env:
