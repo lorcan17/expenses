@@ -2,6 +2,7 @@ from functions import google_funcs
 import pandas as pd
 import pickle
 import nltk
+nltk.download('punkt')
 from nltk.stem import PorterStemmer
 import os
 from dotenv import load_dotenv
