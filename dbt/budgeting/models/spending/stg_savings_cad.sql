@@ -1,6 +1,6 @@
 with savings as (
 
-  SELECT * FROM {{ref('stg_savings')}}
+    select * from {{ ref('stg_savings') }}
 )
 ,
 exchange_rate as (
@@ -9,13 +9,16 @@ exchange_rate as (
 
 )
 
-select s.date,
-s.date_to,
-person,
-bank,
-product,
-amount,
-CASE WHEN currency = 'CAD' THEN amount ELSE (1/cad_gbp_rate) * amount END AS amount_cad,
-from savings s
-LEFT JOIN
-exchange_rate er on DATE_TRUNC(s.date, MONTH) = er.date
+select
+    savings.date,
+    savings.date_to,
+    person,
+    bank,
+    product,
+    amount,
+    case
+        when currency = 'CAD' then amount else (1 / cad_gbp_rate) * amount
+    end as amount_cad
+from savings
+left join
+    exchange_rate on DATE_TRUNC(savings.date, month) = exchange_rate.date

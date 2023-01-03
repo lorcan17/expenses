@@ -1,22 +1,29 @@
 WITH
-savings as (
-  select * from {{ source('bigquery', 'gsheet_savings') }}
+savings AS (
+    SELECT * FROM {{ source('bigquery', 'gsheet_savings') }}
 ),
-data_entries_stage as (
-  select distinct
-  date,
-  person
-  from savings
-),
-data_entries as (
-select  *,
-        IFNULL(
-          LEAD(date) OVER (PARTITION BY person ORDER BY date),
-          '2999-01-01'
-        ) as date_to
- from data_entries_stage
- )
 
-SELECT s.*,
-d.date_to FROM savings s
-inner join data_entries d on s.person = d.person and s.date = d.date
+data_entries_stage AS (
+    SELECT DISTINCT
+        date,
+        person
+    FROM savings
+),
+
+data_entries AS (
+    SELECT
+        *,
+        COALESCE(
+            LEAD(date) OVER (PARTITION BY person ORDER BY date),
+            '2999-01-01'
+        ) AS date_to
+    FROM data_entries_stage
+)
+
+SELECT
+    savings.*,
+    data_entries.date_to
+FROM savings
+INNER JOIN
+    data_entries ON
+        savings.person = data_entries.person AND savings.date = data_entries.date

@@ -3,70 +3,92 @@ with expenses as (
     select * from {{ source('bigquery', 'splitwise_expenses') }}
 
 ),
+
 category as (
-  select * from {{ source('bigquery', 'dim_splitwise_category') }}
+    select * from {{ source('bigquery', 'dim_splitwise_category') }}
 ),
+
 exchange_rate as (
 
     select * from {{ source('bigquery', 'exchange_rate_dim') }}
 
 ),
+
 final as (
-select
-  ex.*,
-  cat.cat_id,
-  cat.cat_name,
-  CASE
-    WHEN  LOWER(ex.exp_desc) LIKE '%.hol%' OR
-          LOWER(ex.exp_desc) LIKE '%hol.%' THEN "Holiday"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.asset%' OR
-          LOWER(ex.exp_desc) LIKE '%asset.%' THEN "Asset"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.imm%' OR
-          LOWER(ex.exp_desc) LIKE '%imm.%' THEN "Immigration Costs"
-    ELSE cat.cat_name
-    END AS cat_name_new,
-  CASE
-    WHEN  LOWER(ex.exp_desc) LIKE '%.pub%' OR
-          LOWER(ex.exp_desc) LIKE '%pub.%' THEN "Pub"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.togo%' OR
-          LOWER(ex.exp_desc) LIKE '%togo.%' THEN "To go snack / drinks"
-    WHEN  LOWER(ex.exp_desc) LIKE '%.self%' OR
-          LOWER(ex.exp_desc) LIKE '%self.%' THEN "Self Care"
-    ELSE ex.subcat_name
-    END as subcat_name_new,
-  CASE WHEN exp_currency = 'CAD' THEN exp_cost ELSE (1/cad_gbp_rate) * exp_cost END AS exp_cost_cad,
-  CASE WHEN exp_currency = 'CAD' THEN paid_share ELSE (1/cad_gbp_rate) * paid_share END AS paid_share_cad,
-  CASE WHEN exp_currency = 'CAD' THEN owed_share ELSE (1/cad_gbp_rate) * owed_share END AS owed_share_cad
-  FROM expenses ex
-  LEFT JOIN
-  exchange_rate er on DATE_TRUNC(ex.date, MONTH) = er.date
-  LEFT JOIN category cat on ex.subcat_id = cat.subcat_id
-  where 1=1
-  AND deleted_date IS NULL
-  AND ifnull(creation_method,'python') NOT IN ('debt_consolidation','payment')
+    select
+        expenses.*,
+        category.cat_id,
+        category.cat_name,
+        case
+            when LOWER(expenses.exp_desc) like '%.hol%'
+                or LOWER(expenses.exp_desc) like '%hol.%' then "Holiday"
+            when LOWER(expenses.exp_desc) like '%.asset%'
+                or LOWER(expenses.exp_desc) like '%asset.%' then "Asset"
+            when LOWER(expenses.exp_desc) like '%.imm%'
+                or LOWER(
+                    expenses.exp_desc
+                ) like '%imm.%' then "Immigration Costs"
+            else category.cat_name
+        end as cat_name_new,
+        case
+            when LOWER(expenses.exp_desc) like '%.pub%'
+                or LOWER(expenses.exp_desc) like '%pub.%' then "Pub"
+            when LOWER(expenses.exp_desc) like '%.togo%'
+                or LOWER(
+                    expenses.exp_desc
+                ) like '%togo.%' then "To go snack / drinks"
+            when LOWER(expenses.exp_desc) like '%.self%'
+                or LOWER(expenses.exp_desc) like '%self.%' then "Self Care"
+            else expenses.subcat_name
+        end as subcat_name_new,
+        case
+            when
+                exp_currency = 'CAD' then exp_cost
+            else (1 / cad_gbp_rate) * exp_cost
+        end as exp_cost_cad,
+        case
+            when
+                exp_currency = 'CAD' then paid_share
+            else (1 / cad_gbp_rate) * paid_share
+        end as paid_share_cad,
+        case
+            when
+                exp_currency = 'CAD' then owed_share
+            else (1 / cad_gbp_rate) * owed_share
+        end as owed_share_cad
+    from expenses
+    left join
+        exchange_rate on DATE_TRUNC(expenses.date, month) = exchange_rate.date
+    left join category on expenses.subcat_id = category.subcat_id
+    where 1 = 1
+        and deleted_date is null
+        and COALESCE(
+            creation_method, 'python'
+        ) not in ('debt_consolidation', 'payment')
 )
+
 select
-  date,
-  deleted_date,
-  created_date
-  updated_date,
-  exp_id,
-  cat_id,
-  cat_name,
-  cat_name_new,
-  subcat_id,
-  subcat_name,
-  subcat_name_new,
-  exp_desc,
-  ifnull(creation_method,'python')  as  creation_method,
-  user_id,
-  first_name,
-  last_name,
-  exp_currency,
-  exp_cost,
-  paid_share,
-  owed_share,
-  exp_cost_cad,
-  paid_share_cad,
-  owed_share_cad
-  from final
+    date,
+    deleted_date,
+    created_date
+    as updated_date,
+    exp_id,
+    cat_id,
+    cat_name,
+    cat_name_new,
+    subcat_id,
+    subcat_name,
+    subcat_name_new,
+    exp_desc,
+    user_id,
+    first_name,
+    last_name,
+    exp_currency,
+    exp_cost,
+    paid_share,
+    owed_share,
+    exp_cost_cad,
+    paid_share_cad,
+    owed_share_cad,
+    COALESCE(creation_method, 'python') as creation_method
+from final
