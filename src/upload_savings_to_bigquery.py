@@ -1,27 +1,20 @@
-from functions import google_funcs
-import pandas as pd
+#! /usr/bin/env python
 import os
+import pandas as pd # pylint: disable=import-error
 from dotenv import load_dotenv
+from functions import google_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-gsheet_export_range = 'Savings!A1:AA1000' #Edit this to be just the cell G14
+GSHEET_EXPORT_RANGE = 'Savings!A1:AA1000' #Edit this to be just the cell G14
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
-gsheet = google_funcs.gsheet_connect(keys)
 
-result = gsheet.values().get(spreadsheetId=spreadsheet_id,
-                            range=gsheet_export_range).execute()
-values = result.get('values', [])
-    # Format as DF and promote first row as headers
-df = pd.DataFrame(values)
-header_row = 0
-df.columns = df.iloc[header_row]
-df = df.drop(header_row)
-df = df.reset_index(drop=True)
+df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
 
 # Unpivot data
-df = df.melt(id_vars=['person', 'bank',	'product',	'strategy',	'currency'],var_name = 'date',value_name = "amount")
+df = df.melt(id_vars=['person', 'bank',	'product',	'strategy',	'currency'],
+            var_name = 'date',value_name = "amount")
 # Convert Data types
 df =  df.convert_dtypes()
 df['date'] = pd.to_datetime(df['date'] ,errors = 'coerce',format = '%d/%m/%Y')

@@ -1,26 +1,21 @@
-from functions import google_funcs
-import pandas as pd
-import os
-from forex_python.converter import CurrencyRates
+#! /usr/bin/env python
+import pandas as pd # pylint: disable=import-error
+from forex_python.converter import CurrencyRates # pylint: disable=import-error
 from dotenv import load_dotenv
+from functions import google_funcs
 load_dotenv()
 
 c = CurrencyRates()
 from_date = pd.to_datetime('01/01/2020')
 yesteday = pd.to_datetime("today") - pd.Timedelta(1, unit='D')
 df = pd.DataFrame(pd.date_range(start=from_date,  end=yesteday, freq='MS'), columns=['date'])
-def get_rate(x):
-    try:
-        op = c.get_rate('CAD', 'GBP', x)
-    except Exception as re:
-        print(re)
-        op=None
-    return op
+
+def get_rate(date) -> float:
+    """Get Exchange Rate of CAD to GBP using module forex_python with variable date"""
+    operation = c.get_rate('CAD', 'GBP', date)
+    return operation
 
 df['cad_gbp_rate'] = df['date'].apply(get_rate)
-
-# Convert Data types
-
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 google_funcs.gsheet_connect(keys)

@@ -1,15 +1,18 @@
-from functions import sw_funcs, google_funcs
-import pandas as pd
-from splitwise.expense import Expense
-from splitwise.expense import ExpenseUser
+#! /usr/bin/env python
+
+import random as r
+import math
 import os
+import pandas as pd # pylint: disable=import-error
+from splitwise.expense import Expense # pylint: disable=import-error
+from splitwise.expense import ExpenseUser # pylint: disable=import-error
 from dotenv import load_dotenv
+from functions import sw_funcs, google_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-gsheet_export_range = 'Splitwise Bulk Import!G14:N1300' #Edit this to be just the cell G14
-gsheet_import_range = 'Expenses!A2'
-gsheet_clear_range = 'Expenses!A2:G10000'
+GSHEET_EXPORT_RANGE = 'Splitwise Bulk Import!G14:N1300' #Edit this to be just the cell G14
+GSHEET_IMPORT_RANGE = 'Expenses!A2'
 
 s = sw_funcs.sw_connect_api()
 
@@ -20,46 +23,30 @@ GraceId = sw_funcs.sw_other_user(s,"Grace", "Williams")
 cat_dim = sw_funcs.sw_get_category_dim(s)
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
-gsheet = google_funcs.gsheet_connect(keys)
 
-result = gsheet.values().get(spreadsheetId=spreadsheet_id,
-                            range=gsheet_export_range).execute()
-values = result.get('values', [])
-    # Format as DF and promote first row as headers
-df = pd.DataFrame(values)
-header_row = 0
-df.columns = df.iloc[header_row]
-df = df.drop(header_row)
-df = df.reset_index(drop=True)
-
+df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
 # Convert Data types
 df =  df.convert_dtypes()
 if df.empty:
     print("No expenses to upload to SplitWise")
     exit()
+
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
-df['Cost'] = df['Cost'].str.replace(',', '')
-df['Cost'] = pd.to_numeric(df['Cost'])
+df['Cost'] = df['Cost'].str.replace(',', '').to_numeric()
 df['Description'] = df['Description'].str.title()
 # Add 50-50 where Share = "Split" and split is empty
 df.loc[(df["Share"]=="Split") & (df["Split"] == ""),"Split"] = "50-50"
 # Split column "Split"
+# EDIT REQUIRED FOR THE BELOW
 try:
     df[['split_payer','split_nonpayer']] = df['Split'].str.split('-',expand=True)
     df['split_payer'] = pd.to_numeric(df['split_payer'])
     df['split_nonpayer'] = pd.to_numeric(df['split_nonpayer'])
 except:
-    #print("No splits present")
     df['split_payer'] = 0
     df['split_nonpayer'] = 0
 
-
-#print(gsheets_export)
-#df = google_funcs.gsheet_export(gsheet,spreadsheet_id,gsheet_export_range,date_format = '%Y%m%d')
-#print(df)
-import random as r
-import math
-
+# Sort Expenses
 lorcan_paid = []
 lorcan_owed = []
 grace_paid = []
@@ -127,7 +114,9 @@ new_expenses_df['Lorcan Share'] = lorcan_owed
 new_expenses_df['Grace Paid'] = grace_paid
 new_expenses_df['Grace Share'] = grace_owed
 
-new_expenses_df = new_expenses_df.merge(cat_dim, left_on ='Category', right_on = 'cat_name: subcat_name', how = 'left')
+new_expenses_df = new_expenses_df.merge(
+                                    cat_dim, left_on ='Category',
+                                    right_on = 'cat_name: subcat_name', how = 'left')
 #print(new_expenses_df)
 
 
@@ -139,50 +128,49 @@ expense_desc = []
 df = new_expenses_df
 #print(df.columns)
 for ind in df.index:
-     #print(ind + 1)
-     date = df['Date'][ind]
-     desc = df['Description'][ind]
-     #print(desc)
-     cost = df['Cost'][ind]
-     lorcan_paid = df['Lorcan Paid'][ind]
-     lorcan_owed = df['Lorcan Share'][ind]
-     grace_paid = df['Grace Paid'][ind]
-     grace_owed = df['Grace Share'][ind]
-     cat_id = df['subcat_id'][ind]
-     currency = df['Currency'][ind]
-     expense = Expense()
-     expense.setCost(cost)
-     expense.setDescription(desc)
-     expense.setCurrencyCode(currency)
-     expense.group_id = group_id
-     expense.date = date
-     expense.category_id = cat_id
-     user1 = ExpenseUser()
-     user1.setId(LorcanId)
-     user1.setPaidShare(lorcan_paid)
-     user1.setOwedShare(lorcan_owed)
-     user2 = ExpenseUser()
-     user2.setId(GraceId)
-     user2.setPaidShare(grace_paid)
-     user2.setOwedShare(grace_owed) #grace_owed
-     expense.addUser(user1)
-     expense.addUser(user2)
-     nExpense, errors = s.createExpense(expense)
-     try:
+    date = df['Date'][ind]
+    #print(ind + 1)
+    desc = df['Description'][ind]
+    #print(desc)
+    cost = df['Cost'][ind]
+    lorcan_paid = df['Lorcan Paid'][ind]
+    lorcan_owed = df['Lorcan Share'][ind]
+    grace_paid = df['Grace Paid'][ind]
+    grace_owed = df['Grace Share'][ind]
+    cat_id = df['subcat_id'][ind]
+    currency = df['Currency'][ind]
+    expense = Expense()
+    expense.setCost(cost)
+    expense.setDescription(desc)
+    expense.setCurrencyCode(currency)
+    expense.group_id = group_id
+    expense.date = date
+    expense.category_id = cat_id
+    user1 = ExpenseUser()
+    user1.setId(LorcanId)
+    user1.setPaidShare(lorcan_paid)
+    user1.setOwedShare(lorcan_owed)
+    user2 = ExpenseUser()
+    user2.setId(GraceId)
+    user2.setPaidShare(grace_paid)
+    user2.setOwedShare(grace_owed) #grace_owed
+    expense.addUser(user1)
+    expense.addUser(user2)
+    nExpense, errors = s.createExpense(expense)
+    try:
         error = errors.getErrors()
-     except AttributeError:
+    except AttributeError:
         error = "No error"
-
-     expense_errors.append(error)
-     try:
+    expense_errors.append(error)
+    try:
         expense_id = nExpense.getId()
-     except AttributeError:
+    except AttributeError:
         expense_id = 0
-     new_expenses_ids.append(expense_id)
-     expense_desc.append(desc)
-     if  error == "No error":
-         print(f'Expense {expense_id} created')
-     else:
+    new_expenses_ids.append(expense_id)
+    expense_desc.append(desc)
+    if  error == "No error":
+        print(f'Expense {expense_id} created')
+    else:
         print(f'Error: {error}')
 
 new_expense_ids_df  = pd.DataFrame(expense_desc, columns=['Description'])

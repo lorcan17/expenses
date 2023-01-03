@@ -1,36 +1,28 @@
-from google.oauth2.credentials import Credentials
+import os
+import json
+from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
-import os
-from dotenv import load_dotenv
-import json
-from cryptography.fernet import Fernet
-import datetime
 from google.cloud import bigquery
 import pandas as pd
-import pytz
-
-# Other 
+#import pytz
+# Other
 import nltk
 from nltk.stem import PorterStemmer
 
 load_dotenv()
 # Connect to GSheets
 def decrypt_creds(file_path):
-    ENCRYPT_KEY= os.environ['ENCRYPT_KEY']
+    encrypt_key = os.environ['ENCRYPT_KEY']
     #keys = ast.literal_eval(GOOGLE_JSON_KEY)
-    f = Fernet(ENCRYPT_KEY)
+    fernet = Fernet(encrypt_key)
     with open(file_path, "rb") as file:
         # read the encrypted data
         encrypted_data = file.read()
         # decrypt data
-    keys = f.decrypt(encrypted_data)
-    #(keys)
-
+    keys = fernet.decrypt(encrypted_data)
     keys = json.loads(keys)
-    #keys = ast.literal_eval(keys)
-    #creds = service_account.Credentials.from_service_account_file(
-    #        keys, scopes=SCOPES)
     return keys
 
 def gsheet_connect(keys):
@@ -49,24 +41,17 @@ def gsheet_export(keys,spreadsheet_id,gsheet_export_range):
     # Does not work
     # export transaction data from google sheet
     gsheet = gsheet_connect(keys)
-    spreadsheet_id = spreadsheet_id
-    gsheet_export_range = gsheet_export_range
     result = gsheet.values().get(spreadsheetId=spreadsheet_id,
                                 range=gsheet_export_range).execute()
     values = result.get('values', [])
 
     # Format as DF and promote first row as headers
-    df = pd.DataFrame(values)
+    gsheet_df = pd.DataFrame(values)
     header_row = 0
-    df.columns = df.iloc[header_row]
-    df = df.drop(header_row)
-    df = df.reset_index(drop=True)
-
-    # Convert Data types
-    #gsheets_export =  gsheets_export.convert_dtypes()
-    #df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = date_format)
-    #df['Cost'] = pd.to_numeric(df['Cost'])
-    return df
+    gsheet_df.columns = gsheet_df.iloc[header_row]
+    gsheet_df = gsheet_df.drop(header_row)
+    gsheet_df = gsheet_df.reset_index(drop=True)
+    return gsheet_df
 
 def big_query_connect(keys):
     SCOPES = ['https://www.googleapis.com/auth/bigquery']
@@ -122,10 +107,7 @@ def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE
 
     table = client.get_table(table_id)  # Make an API request.
     print(
-    "Loaded {} rows and {} columns to {}".format(
-        table.num_rows, len(table.schema), table_id
-    )
-)
+    f"Loaded {table.num_rows} rows and {len(table.schema)} columns to {table_id}")
 
 def get_nlp_ready(descriptions):
     tokenized_descriptions = descriptions.str.lower()

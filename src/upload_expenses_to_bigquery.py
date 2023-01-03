@@ -1,5 +1,6 @@
-from functions import sw_funcs, google_funcs
 import pandas as pd
+from functions import sw_funcs, google_funcs
+
 
 s = sw_funcs.sw_connect_api()
 group_id = sw_funcs.sw_group_id(s,"Everyday spEnding")
@@ -17,9 +18,9 @@ for ind in dates.index:
     date_to = dates['date_to'][ind]
     export = sw_funcs.sw_export_data(s,group_id,limit = 0, date_before = date_to, date_after = date_from )
     if ind == 0:
-        write_disposition = 'WRITE_TRUNCATE'
+        WRITE_DISPOSITION = 'WRITE_TRUNCATE'
     else:
-        write_disposition = 'WRITE_APPEND'
+        WRITE_DISPOSITION = 'WRITE_APPEND'
 
     keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
     google_funcs.gsheet_connect(keys)
@@ -30,4 +31,4 @@ for ind in dates.index:
                         client,
                         table_id = "budgeting.splitwise_expenses",
                         dataframe = export,
-                        write_disposition = write_disposition)
+                        write_disposition = WRITE_DISPOSITION)

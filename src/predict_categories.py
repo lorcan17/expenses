@@ -1,11 +1,9 @@
-from functions import google_funcs
-import pandas as pd
 import pickle
-import nltk
-nltk.download('punkt')
-from nltk.stem import PorterStemmer
 import os
+import nltk
 from dotenv import load_dotenv
+from functions import google_funcs
+nltk.download('punkt')
 load_dotenv()
 
 
@@ -14,15 +12,14 @@ load_dotenv()
 ################################################################################
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-gsheet_export_range = 'Splitwise Bulk Import!H14:H1300' #Edit this to be just the cell G14
-gsheet_import_range = 'Splitwise Bulk Import!M15'
-gsheet_clear_range = 'Expenses!A2:G10000'
+GSHEET_EXPORT_RANGE = 'Splitwise Bulk Import!H14:H1300' #Edit this to be just the cell G14
+GSHEET_IMPORT_RANGE = 'Splitwise Bulk Import!M15'
 
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 gsheet = google_funcs.gsheet_connect(keys)
 
-df = google_funcs.gsheet_export(keys,spreadsheet_id,gsheet_export_range)
+df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
 
 df =  df.convert_dtypes()
 if df.empty:
@@ -48,7 +45,7 @@ value_range_body = {"values": data,
                     "majorDimension": "COLUMNS"}
 
 gsheet.values().update(spreadsheetId=spreadsheet_id,
-                            range=gsheet_import_range,
+                            range=GSHEET_IMPORT_RANGE,
                             valueInputOption='RAW',
                             body =value_range_body
                             ).execute()

@@ -1,6 +1,5 @@
-from functions import google_funcs, sw_funcs
-import pandas as pd
 from dotenv import load_dotenv
+from functions import google_funcs, sw_funcs
 load_dotenv()
 
 s = sw_funcs.sw_connect_api()

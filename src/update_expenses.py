@@ -1,9 +1,8 @@
-from functions import sw_funcs, google_funcs
-import pandas as pd
 from splitwise.expense import Expense
 from splitwise.expense import ExpenseUser
 import os
 from dotenv import load_dotenv
+from functions import sw_funcs, google_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
@@ -14,17 +13,8 @@ s = sw_funcs.sw_connect_api()
 cat_dim = sw_funcs.sw_get_category_dim(s)
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
-gsheet = google_funcs.gsheet_connect(keys)
 
-result = gsheet.values().get(spreadsheetId=spreadsheet_id,
-                            range=gsheet_export_range).execute()
-values = result.get('values', [])
-    # Format as DF and promote first row as headers
-df = pd.DataFrame(values)
-header_row = 0
-df.columns = df.iloc[header_row]
-df = df.drop(header_row)
-df = df.reset_index(drop=True)
+df = google_funcs.gsheet_export(keys,spreadsheet_id,gsheet_export_range)
 
 if df.empty:
     print("No expenses to be updated")
@@ -32,17 +22,9 @@ if df.empty:
 
 df = df.merge(cat_dim, left_on ='new_cat', right_on = 'cat_name: subcat_name', how = 'left')
 
-# Convert Data types
-#df =  df.convert_dtypes()
-#df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
-#df['Cost'] = pd.to_numeric(df['Cost'])
-
 s = sw_funcs.sw_connect_api()
 LorcanId = sw_funcs.sw_current_user(s)
 GraceId = sw_funcs.sw_other_user(s,"Grace", "Williams")
-
-#cat = s.getCategories()
-
 
 for ind in df.index:
     id = df["exp_id"][ind]

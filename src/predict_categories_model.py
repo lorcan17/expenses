@@ -1,15 +1,11 @@
-from functions import sw_funcs, google_funcs
-import pandas as pd
-from splitwise.expense import Expense
-from splitwise.expense import ExpenseUser
-import os
 import pickle
-import numpy as np
+import ssl
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-import ssl
 from sklearn.feature_extraction.text import TfidfVectorizer
+from dotenv import load_dotenv
+from functions import google_funcs
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -18,16 +14,16 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-from dotenv import load_dotenv
+
 load_dotenv()
 
-query = """select cat_name_subcat_name, exp_desc, from `budgeting.stg_expenses` a join
+QUERY = """select cat_name_subcat_name, exp_desc, from `budgeting.stg_expenses` a join
 `budgeting.dim_splitwise_category` b on a.subcat_id = b.subcat_id"""
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 
 client = google_funcs.big_query_connect(keys)
 
-df = google_funcs.big_query_export(keys,query)
+df = google_funcs.big_query_export(keys,QUERY)
 dtypes = {col: 'str' for col in df.columns}
 
 # Create training data with descriptions and their corresponding categories
