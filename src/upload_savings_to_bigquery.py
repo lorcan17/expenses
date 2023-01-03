@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 import os
-import pandas as pd # pylint: disable=import-error
+
+import pandas as pd
 from dotenv import load_dotenv
 from functions import google_funcs
+
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']

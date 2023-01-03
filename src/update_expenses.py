@@ -1,8 +1,9 @@
-from splitwise.expense import Expense
-from splitwise.expense import ExpenseUser
 import os
+
 from dotenv import load_dotenv
-from functions import sw_funcs, google_funcs
+from functions import google_funcs, sw_funcs
+from splitwise.expense import Expense, ExpenseUser
+
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']

@@ -1,10 +1,13 @@
 import pickle
 import ssl
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.feature_extraction.text import TfidfVectorizer
+
 from dotenv import load_dotenv
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
 from functions import google_funcs
 
 try:

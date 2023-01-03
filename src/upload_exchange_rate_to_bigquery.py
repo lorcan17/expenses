@@ -1,8 +1,10 @@
 #! /usr/bin/env python
-import pandas as pd # pylint: disable=import-error
-from forex_python.converter import CurrencyRates # pylint: disable=import-error
+import pandas as pd  # pylint: disable=import-error
 from dotenv import load_dotenv
+from forex_python.converter import \
+    CurrencyRates  # pylint: disable=import-error
 from functions import google_funcs
+
 load_dotenv()
 
 c = CurrencyRates()

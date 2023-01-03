@@ -1,8 +1,10 @@
 #from splitwise import Splitwise
 import os
-import pandas as pd # pylint: disable=import-error
-from splitwise import Splitwise # pylint: disable=import-error
+
+import pandas as pd  # pylint: disable=import-error
 from dotenv import load_dotenv
+from splitwise import Splitwise  # pylint: disable=import-error
+
 load_dotenv()
 #from datetime import datetime as dt
 

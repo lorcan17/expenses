@@ -1,8 +1,10 @@
-import pickle
 import os
+import pickle
+
 import nltk
 from dotenv import load_dotenv
 from functions import google_funcs
+
 nltk.download('punkt')
 load_dotenv()
 

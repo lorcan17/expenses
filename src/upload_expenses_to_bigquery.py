@@ -1,6 +1,5 @@
 import pandas as pd
-from functions import sw_funcs, google_funcs
-
+from functions import google_funcs, sw_funcs
 
 s = sw_funcs.sw_connect_api()
 group_id = sw_funcs.sw_group_id(s,"Everyday spEnding")

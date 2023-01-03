@@ -1,13 +1,16 @@
 #! /usr/bin/env python
 
-import random as r
 import math
 import os
-import pandas as pd # pylint: disable=import-error
-from splitwise.expense import Expense # pylint: disable=import-error
-from splitwise.expense import ExpenseUser # pylint: disable=import-error
+import random as r
+
+import pandas as pd 
 from dotenv import load_dotenv
-from functions import sw_funcs, google_funcs
+
+from splitwise.expense import Expense
+from splitwise.expense import ExpenseUser
+
+from functions import google_funcs, sw_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
