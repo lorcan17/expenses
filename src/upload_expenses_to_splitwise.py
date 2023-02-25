@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 
-import math
 import os
-import random as r
 
 import pandas as pd 
 from dotenv import load_dotenv
@@ -40,16 +38,17 @@ df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
 df['Description'] = df['Description'].str.title()
 # Add 50-50 where Share = "Split" and split is empty
-df.loc[(df["Share"]=="Split") & (df["Split"] == ""),"Split"] = "50-50"
-# Split column "Split"
-# EDIT REQUIRED FOR THE BELOW
-try:
-    df[['split_payer','split_nonpayer']] = df['Split'].str.split('-',expand=True)
+df.loc[(df["Share"]=="Split") & (df["Split"].isna()),"Split"] = "50-50"
+
+if not df["Split"].isna().all():
+    df['split_payer'], df['split_nonpayer'] = df['Split'].str.split('-',expand=True)
     df['split_payer'] = pd.to_numeric(df['split_payer'])
     df['split_nonpayer'] = pd.to_numeric(df['split_nonpayer'])
-except:
+else: # No items are split and below is to avoid error
     df['split_payer'] = 0
     df['split_nonpayer'] = 0
+
+
 
 # Sort Expenses
 lorcan_paid = []
@@ -62,27 +61,12 @@ for ind in new_expenses_df.index:
     cost = new_expenses_df['Cost'][ind]
     who_paid = new_expenses_df['Who Paid?'][ind]
     share = new_expenses_df['Share'][ind]
-    split_nonpayer = new_expenses_df['split_nonpayer'][ind]
     split_payer = new_expenses_df['split_payer'][ind]
+    split_nonpayer = new_expenses_df['split_nonpayer'][ind]
     payer_cost = cost * (split_payer/100)
     payer_cost = round(payer_cost,2)
-    nonpayer_cost = cost * (split_nonpayer/100)
-    nonpayer_cost = round(nonpayer_cost,2)
+    nonpayer_cost = cost - payer_cost
 
-    if cost % 0.02 > 0:
-        if r.random() >= 0.5:
-            split_cost1 = math.floor((cost / 2) * 100) / 100
-        else:
-            split_cost1 = math.ceil((cost / 2)*100) / 100
-    else:
-        split_cost1 = cost / 2
-    split_cost2 = cost - split_cost1
-
-    if nonpayer_cost + payer_cost != cost:
-        if r.random() >= 0.5:
-            nonpayer_cost = cost - payer_cost
-        else:
-            payer_cost = cost - nonpayer_cost
     if who_paid == 'Lorcan':
         lorcan_paid.append(cost)
         grace_paid.append(0)
@@ -90,12 +74,8 @@ for ind in new_expenses_df.index:
         lorcan_paid.append(0)
         grace_paid.append(cost)
     if who_paid == 'Both':
-        if share == "Split":
-            lorcan_paid.append(payer_cost)
-            grace_paid.append(nonpayer_cost)
-        else:
-            lorcan_paid.append(split_cost1)
-            grace_paid.append(split_cost2)
+        lorcan_paid.append(payer_cost)
+        grace_paid.append(nonpayer_cost)
     if share == 'Split':
         if who_paid == 'Lorcan':
             lorcan_owed.append(payer_cost)
