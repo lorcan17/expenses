@@ -12,7 +12,9 @@
         "--line-width=88"
     ],
     "sqlfluff.executablePath": "/Users/lorcan/opt/anaconda3/envs/expenses/bin/sqlfluff",
-    "sqlfluff.linter.run": "onSave",
-    "sqlfluff.experimental.format.executeInTerminal": true,
-    "editor.formatOnSave": false
+    "sqlfluff.dialect": "bigquery",
+    "sqlfluff.format.enabled": true,
+    "sqlfluff.ignoreLocalConfig": false,
+    "sqlfluff.ignoreParsing": false,
+    "sqlfluff.linter.run": "onSave"
 }
