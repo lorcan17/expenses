@@ -1,9 +1,9 @@
 import os
 import pickle
-
+import numpy as np
 import nltk
 from dotenv import load_dotenv
-from functions import google_funcs
+from functions import google_funcs, nlp_funcs
 
 nltk.download('punkt')
 load_dotenv()
@@ -14,14 +14,15 @@ load_dotenv()
 ################################################################################
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-GSHEET_EXPORT_RANGE = 'Splitwise Bulk Import!H14:H1300' #Edit this to be just the cell G14
-GSHEET_IMPORT_RANGE = 'Splitwise Bulk Import!M15'
+DESC_EXPORT_RANGE = 'Splitwise Bulk Import!H14:H1300' #Edit this to be just the cell G14
+CAT_IMPORT_RANGE = 'Splitwise Bulk Import!J15'
+CONF_IMPORT_RANGE = 'Splitwise Bulk Import!K15'
 
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 gsheet = google_funcs.gsheet_connect(keys)
 
-df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
+df = google_funcs.gsheet_export(keys,spreadsheet_id,DESC_EXPORT_RANGE)
 
 df =  df.convert_dtypes()
 if df.empty:
@@ -38,16 +39,25 @@ vectorizer = pickle.load(open("vectorizer.pickle", "rb"))
 model = pickle.load(open("model.pickle", "rb"))
 
 descriptions = df['Description']
-descriptions = google_funcs.get_nlp_ready(descriptions)
+descriptions = nlp_funcs.get_nlp_ready(descriptions)
 descriptions = vectorizer.transform(descriptions)
 df['categories'] = model.predict(descriptions)
+proba = model.predict_proba(descriptions)
+max_proba = np.amax(proba, axis=1)
+df['confidence'] = max_proba
 
-data = [df.categories.values.tolist()]
-value_range_body = {"values": data,
+def import_column(df,col,spreadsheet_id, gsheet_import_range):
+
+    data = [df[col].values.tolist()]
+    value_range_body = {"values": data,
                     "majorDimension": "COLUMNS"}
 
-gsheet.values().update(spreadsheetId=spreadsheet_id,
-                            range=GSHEET_IMPORT_RANGE,
+    gsheet.values().update(spreadsheetId=spreadsheet_id,
+                            range=gsheet_import_range,
                             valueInputOption='RAW',
-                            body =value_range_body
+                            body = value_range_body
                             ).execute()
+
+import_column(df,'categories',spreadsheet_id, CAT_IMPORT_RANGE)
+
+import_column(df,'confidence',spreadsheet_id, CONF_IMPORT_RANGE)

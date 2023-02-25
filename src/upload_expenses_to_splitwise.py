@@ -14,7 +14,7 @@ from functions import google_funcs, sw_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-GSHEET_EXPORT_RANGE = 'Splitwise Bulk Import!G14:N1300' #Edit this to be just the cell G14
+GSHEET_EXPORT_RANGE = 'Splitwise Bulk Import!G14:01300'
 GSHEET_IMPORT_RANGE = 'Expenses!A2'
 
 s = sw_funcs.sw_connect_api()
@@ -30,12 +30,14 @@ keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
 # Convert Data types
 df =  df.convert_dtypes()
+
 if df.empty:
     print("No expenses to upload to SplitWise")
     exit()
 
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
-df['Cost'] = df['Cost'].str.replace(',', '').to_numeric()
+df['Cost'] = df['Cost'].str.replace(',', '')
+df['Cost'] = pd.to_numeric(df['Cost'])
 df['Description'] = df['Description'].str.title()
 # Add 50-50 where Share = "Split" and split is empty
 df.loc[(df["Share"]=="Split") & (df["Split"] == ""),"Split"] = "50-50"
@@ -81,7 +83,6 @@ for ind in new_expenses_df.index:
             nonpayer_cost = cost - payer_cost
         else:
             payer_cost = cost - nonpayer_cost
-
     if who_paid == 'Lorcan':
         lorcan_paid.append(cost)
         grace_paid.append(0)

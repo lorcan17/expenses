@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-from functions import google_funcs
+from functions import google_funcs, nlp_funcs
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -21,12 +21,11 @@ else:
 load_dotenv()
 
 QUERY = """select cat_name_subcat_name, exp_desc, from `budgeting.stg_expenses` a join
-`budgeting.dim_splitwise_category` b on a.subcat_id = b.subcat_id"""
+`budgeting.dim_splitwise_category` b on a.subcat_id = b.subcat_id
+where extract(year from date) > extract(year from current_date()) - 2"""
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 
-client = google_funcs.big_query_connect(keys)
-
-df = google_funcs.big_query_export(keys,QUERY)
+df = google_funcs.big_query_export(keys, QUERY)
 dtypes = {col: 'str' for col in df.columns}
 
 # Create training data with descriptions and their corresponding categories
@@ -34,7 +33,7 @@ descriptions = df["exp_desc"]
 categories = df["cat_name_subcat_name"]#.to_numpy()
 # Use NLTK to tokenize the descriptions
 
-stemmed_tokens = google_funcs.get_nlp_ready(descriptions)
+stemmed_tokens = nlp_funcs.get_nlp_ready(descriptions)
 
 # Create a TfidfVectorizer object
 vectorizer = TfidfVectorizer()

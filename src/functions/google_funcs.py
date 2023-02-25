@@ -3,14 +3,13 @@ import os
 
 #import pytz
 # Other
-import nltk
 import pandas as pd
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from nltk.stem import PorterStemmer
+
 
 load_dotenv()
 # Connect to GSheets
@@ -109,16 +108,3 @@ def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE
     table = client.get_table(table_id)  # Make an API request.
     print(
     f"Loaded {table.num_rows} rows and {len(table.schema)} columns to {table_id}")
-
-def get_nlp_ready(descriptions):
-    tokenized_descriptions = descriptions.str.lower()
-    tokenized_descriptions = tokenized_descriptions.apply(nltk.word_tokenize)
-
-    # Use NLTK's Porter stemmer to stem the tokens
-    stemmer = PorterStemmer()
-    stemmed_tokens= tokenized_descriptions.apply(lambda d : [stemmer.stem(t) for t in d])
-
-    # Join tokens into one string
-    stemmed_tokens = stemmed_tokens.apply(lambda x: ' '.join(x))
-
-    return stemmed_tokens
