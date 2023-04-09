@@ -20,12 +20,12 @@ jobs:
     steps:
       - name: checkout repo content
         uses: actions/checkout@v2 # checkout the repository content to github runner.
-      - name: setup python
-        uses: actions/setup-python@v2
+      - name: setup conda
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: 3.8 #install the python needed
-          cache: pip
-      - run: pip install -r requirements.txt
+          activate-environment: anaconda-client-env
+          environment-file: environment.yml
+          python-version: 3.8
       - name: update expenses py script
         run: |
           python src/predict_categories.py
