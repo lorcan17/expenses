@@ -28,8 +28,10 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           environment-file: environment.yml
-      - name: Conda List
-        run: conda env list # specify the environment.yml file for Conda to create environment
+      - name: Conda List and activate conda
+        run: |
+          conda env list
+          conda init bash
       - name: Activate conda environment
         run: conda activate test # specify the environment.yml file for Conda to create environment
       - name: update expenses py script
