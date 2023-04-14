@@ -34,9 +34,6 @@ jobs:
         run: |
           conda info
           conda list   
-      - name: Check Conda 
-        run: |
-          conda activate expenses
       - name: update expenses py script
         run: |
           python src/update_expenses.py
