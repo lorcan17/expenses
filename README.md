@@ -41,3 +41,15 @@ Description contains
 - .imm immigration fees -> cat name Immgration Costs
 - pub. - Spent at a pub ->-> subcat name Pub
 - asset. - an item we plan to sell in the future i.e car -> cat name Asset (no less than $500 value)
+
+# Environment
+Update environment:
+
+`conda env export --from-history  > environment.yml`
+
+Create environment
+
+`conda env create -f environment.yml`
+
+
+
