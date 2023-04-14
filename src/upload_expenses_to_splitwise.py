@@ -17,7 +17,7 @@ GSHEET_IMPORT_RANGE = 'Expenses!A2'
 
 s = sw_funcs.sw_connect_api()
 
-group_id = sw_funcs.sw_group_id(s,"Everyday spEnding")
+group_id = sw_funcs.sw_group_id(s,"Everyday Spending")
 LorcanId = sw_funcs.sw_current_user(s)
 GraceId = sw_funcs.sw_other_user(s,"Grace", "Williams")
 
@@ -47,16 +47,13 @@ df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
 df['Description'] = df['Description'].str.title()
+
 # Add 50-50 where Share = "Split" and split is empty
 df.loc[(df["Share"]=="Split") & (df["Split"].isna()),"Split"] = "50-50"
+# Add 0-0 where split is empty or does not contain "-"
+df.loc[df['Split'].isna(), "Split"] = "0-0"
 
-
-if df['Split'].isnull().values.any() or not df['Split'].str.contains('-').any():
-    # Set dummy values for 'split_left' and 'split_right'
-    df['split_left'] = 0
-    df['split_right'] = 0
-else:
-    df[['split_left', 'split_right']] = df['Split'].str.split('-', expand=True)
+df[['split_left', 'split_right']] = df['Split'].str.split('-', expand=True)
 
 df['split_left'] = pd.to_numeric(df['split_left'])
 df['split_right'] = pd.to_numeric(df['split_right'])
