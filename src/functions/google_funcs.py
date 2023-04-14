@@ -38,7 +38,6 @@ def gsheet_connect(keys):
     return gsheet
 
 def gsheet_export(keys,spreadsheet_id,gsheet_export_range):
-    # Does not work
     # export transaction data from google sheet
     gsheet = gsheet_connect(keys)
     result = gsheet.values().get(spreadsheetId=spreadsheet_id,
@@ -51,6 +50,7 @@ def gsheet_export(keys,spreadsheet_id,gsheet_export_range):
     gsheet_df.columns = gsheet_df.iloc[header_row]
     gsheet_df = gsheet_df.drop(header_row)
     gsheet_df = gsheet_df.reset_index(drop=True)
+    gsheet_df.replace('', pd.NA, inplace=True)
     return gsheet_df
 
 def big_query_connect(keys):
