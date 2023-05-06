@@ -46,10 +46,17 @@ Description contains
 Update environment:
 
 `conda env export --from-history  > environment.yml`
+`conda env export --no-builds | grep -v "prefix" > environment.yml`
+
 
 Create environment
 
 `conda env create -f environment.yml`
 
+use pip freeze
+`pip list --format=freeze > requirements.txt`
 
 
+
+delete the test group
+https://splitwise.readthedocs.io/en/latest/user/example.html?highlight=group#creating-a-new-group

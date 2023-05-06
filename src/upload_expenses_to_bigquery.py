@@ -1,8 +1,11 @@
+import os 
 import pandas as pd
 from functions import google_funcs, sw_funcs
 
 s = sw_funcs.sw_connect_api()
-group_id = sw_funcs.sw_group_id(s,"Everyday spEnding")
+test_run = os.environ['TEST_RUN']
+GROUP_NAME = "Everyday spEnding" if test_run == "No" else "Test"
+group_id = sw_funcs.sw_group_id(s,GROUP_NAME)
 
 
 dates = pd.DataFrame(

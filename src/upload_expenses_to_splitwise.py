@@ -12,12 +12,14 @@ from functions import google_funcs, sw_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-GSHEET_EXPORT_RANGE = 'Splitwise Bulk Import!G16:01300'
-GSHEET_IMPORT_RANGE = 'Expenses!A2'
+test_run = os.environ['TEST_RUN']
+SHEET_NAME = "Splitwise Bulk Import" if test_run == "No" else "Splitwise Bulk Import Test"
+GSHEET_EXPORT_RANGE = SHEET_NAME+'!G16:01300'
 
 s = sw_funcs.sw_connect_api()
 
-group_id = sw_funcs.sw_group_id(s,"Everyday Spending")
+GROUP_NAME = "Everyday spEnding" if test_run == "No" else "Test"
+group_id = sw_funcs.sw_group_id(s,GROUP_NAME)
 LorcanId = sw_funcs.sw_current_user(s)
 GraceId = sw_funcs.sw_other_user(s,"Grace", "Williams")
 
