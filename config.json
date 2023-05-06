@@ -1,0 +1,12 @@
+{"Splitwise": {
+    "Group Name": "Everyday Spending",
+    "User 1": "Lorcan Travers",
+    "User 2": "Grace Williams"
+},
+"Sheets": {
+    "Sheet Name": "Bulk Import",
+    "Export Range":"G1:Q2"
+},
+"BigQuery": {
+    "table_name": "budgeting.splitwise_expenses"
+}}
