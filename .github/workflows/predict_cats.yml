@@ -2,11 +2,22 @@
 
 name: Predict Categories
 
-on: workflow_dispatch
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      test:
+        # Friendly description to be shown in the UI instead of 'name'
+        type: choice
+        description: 'Is this a test?'
+        # Default value if no value is explicitly provided
+        options:
+        - Yes
+        - No
+        # Input has to be provided for the workflow to run
+        required: true
 env:
+  TEST_RUN: ${{ github.event.inputs.test }}
   SPLITWISE_CONSUMER_KEY: '${{ secrets.SPLITWISE_CONSUMER_KEY }}'
   SPLITWISE_CONSUMER_SECRET_KEY: '${{ secrets.SPLITWISE_CONSUMER_SECRET_KEY }}'
   SPLITWISE_API_KEY: '${{ secrets.SPLITWISE_API_KEY }}'
@@ -24,10 +35,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9 #install the python needed
-      - name: setup conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          environment-file: environment.yml # specify the environment.yml file for Conda to create environment
+          cache: pip
+      - run: pip install -r requirements.txt
       - name: update expenses py script
         run: |
           python src/predict_categories.py
