@@ -54,7 +54,9 @@ Create environment
 `conda env create -f environment.yml`
 
 use pip freeze
-`pip list --format=freeze > requirements.txt`
+`pip3 list --format=freeze > requirements.txt`
+
+pipreqs --force
 
 
 
