@@ -14,9 +14,11 @@ load_dotenv()
 ################################################################################
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-DESC_EXPORT_RANGE = 'Splitwise Bulk Import!H14:H1300' #Edit this to be just the cell G14
-CAT_IMPORT_RANGE = 'Splitwise Bulk Import!J15'
-CONF_IMPORT_RANGE = 'Splitwise Bulk Import!K15'
+test_run = os.environ['TEST_RUN']
+SHEET_NAME = "Splitwise Bulk Import" if test_run == "No" else "Splitwise Bulk Import Test"
+DESC_EXPORT_RANGE = SHEET_NAME+'!H16:H1300' #Edit this to be just the cell H14
+CAT_IMPORT_RANGE = SHEET_NAME+'!J17'
+CONF_IMPORT_RANGE = SHEET_NAME+'!K17'
 
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")

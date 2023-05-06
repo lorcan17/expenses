@@ -12,12 +12,14 @@ from functions import google_funcs, sw_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-GSHEET_EXPORT_RANGE = 'Splitwise Bulk Import!G14:01300'
-GSHEET_IMPORT_RANGE = 'Expenses!A2'
+test_run = os.environ['TEST_RUN']
+SHEET_NAME = "Splitwise Bulk Import" if test_run == "No" else "Splitwise Bulk Import Test"
+GSHEET_EXPORT_RANGE = SHEET_NAME+'!G16:01300'
 
 s = sw_funcs.sw_connect_api()
 
-group_id = sw_funcs.sw_group_id(s,"Everyday spEnding")
+GROUP_NAME = "Everyday spEnding" if test_run == "No" else "Test"
+group_id = sw_funcs.sw_group_id(s,GROUP_NAME)
 LorcanId = sw_funcs.sw_current_user(s)
 GraceId = sw_funcs.sw_other_user(s,"Grace", "Williams")
 
@@ -28,25 +30,35 @@ keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
 # Convert Data types
 df =  df.convert_dtypes()
+# Remove empty rows caused by gsheet being weird
+df = df[df['Date'].notnull()]
 
 if df.empty:
     print("No expenses to upload to SplitWise")
     exit()
 
+null_column_check = ["Category", "Currency", "Description", "Who Paid?", "Cost", "Share"]
+if df[null_column_check].isnull().values.any():
+    print('Null values found in Category, Currency, Description, Who Paid?, Share or Cost column.\n'
+          'Please populate with values'
+          )
+    exit()
+
+
 df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
 df['Description'] = df['Description'].str.title()
+
 # Add 50-50 where Share = "Split" and split is empty
 df.loc[(df["Share"]=="Split") & (df["Split"].isna()),"Split"] = "50-50"
+# Add 0-0 where split is empty or does not contain "-"
+df.loc[df['Split'].isna(), "Split"] = "0-0"
 
-if not df["Split"].isna().all():
-    df['split_payer'], df['split_nonpayer'] = df['Split'].str.split('-',expand=True)
-    df['split_payer'] = pd.to_numeric(df['split_payer'])
-    df['split_nonpayer'] = pd.to_numeric(df['split_nonpayer'])
-else: # No items are split and below is to avoid error
-    df['split_payer'] = 0
-    df['split_nonpayer'] = 0
+df[['split_left', 'split_right']] = df['Split'].str.split('-', expand=True)
+
+df['split_left'] = pd.to_numeric(df['split_left'])
+df['split_right'] = pd.to_numeric(df['split_right'])
 
 
 
@@ -61,11 +73,14 @@ for ind in new_expenses_df.index:
     cost = new_expenses_df['Cost'][ind]
     who_paid = new_expenses_df['Who Paid?'][ind]
     share = new_expenses_df['Share'][ind]
-    split_payer = new_expenses_df['split_payer'][ind]
-    split_nonpayer = new_expenses_df['split_nonpayer'][ind]
-    payer_cost = cost * (split_payer/100)
-    payer_cost = round(payer_cost,2)
-    nonpayer_cost = cost - payer_cost
+    split_left = new_expenses_df['split_left'][ind]
+    split_right = new_expenses_df['split_right'][ind]
+    
+    equal_cost = round(cost * (50/100),2)
+    equal_cost2 = cost - equal_cost
+    
+    split_left_owes = round(cost * (split_left/100),2)
+    split_right_owes = cost - split_left_owes
 
     if who_paid == 'Lorcan':
         lorcan_paid.append(cost)
@@ -74,18 +89,11 @@ for ind in new_expenses_df.index:
         lorcan_paid.append(0)
         grace_paid.append(cost)
     if who_paid == 'Both':
-        lorcan_paid.append(payer_cost)
-        grace_paid.append(nonpayer_cost)
+        lorcan_paid.append(equal_cost)
+        grace_paid.append(equal_cost2)
     if share == 'Split':
-        if who_paid == 'Lorcan':
-            lorcan_owed.append(payer_cost)
-            grace_owed.append(nonpayer_cost)
-        if who_paid == 'Grace':
-            grace_owed.append(payer_cost)
-            lorcan_owed.append(nonpayer_cost)
-        if who_paid == 'Both':
-            lorcan_owed.append(payer_cost)
-            grace_owed.append(nonpayer_cost)
+        lorcan_owed.append(split_left_owes)
+        grace_owed.append(split_right_owes)
     if share == 'Just Lorcan':
         lorcan_owed.append(cost)
         grace_owed.append(0)

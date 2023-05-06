@@ -41,3 +41,24 @@ Description contains
 - .imm immigration fees -> cat name Immgration Costs
 - pub. - Spent at a pub ->-> subcat name Pub
 - asset. - an item we plan to sell in the future i.e car -> cat name Asset (no less than $500 value)
+
+# Environment
+Update environment:
+
+`conda env export --from-history  > environment.yml`
+`conda env export --no-builds | grep -v "prefix" > environment.yml`
+
+
+Create environment
+
+`conda env create -f environment.yml`
+
+use pip freeze
+`pip3 list --format=freeze > requirements.txt`
+
+pipreqs --force
+
+
+
+delete the test group
+https://splitwise.readthedocs.io/en/latest/user/example.html?highlight=group#creating-a-new-group
