@@ -15,7 +15,7 @@ keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
 
 # Unpivot data
-df = df.melt(id_vars=['person', 'bank',	'product',	'strategy',	'currency'],
+df = df.melt(id_vars=['person', 'bank',	'product','interest_rate', 'strategy',	'currency'],
             var_name = 'date',value_name = "amount")
 # Convert Data types
 df =  df.convert_dtypes()
