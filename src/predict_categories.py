@@ -20,7 +20,7 @@ SHEET_NAME = "Splitwise Bulk Import" if test_run == "No" else "Splitwise Bulk Im
 DESC_EXPORT_RANGE = SHEET_NAME+'!H16:H1300' #Edit this to be just the cell H14
 CAT_IMPORT_RANGE = SHEET_NAME+'!J17'
 CONF_IMPORT_RANGE = SHEET_NAME+'!K17'
-
+print(SHEET_NAME)
 
 keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
 gsheet = google_funcs.gsheet_connect(keys)
