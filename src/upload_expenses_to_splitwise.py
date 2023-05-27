@@ -37,9 +37,9 @@ if df.empty:
     print("No expenses to upload to SplitWise")
     exit()
 
-null_column_check = ["Category", "Currency", "Description", "Who Paid?", "Cost", "Share"]
+null_column_check = ["Category", "Currency", "Description", "Who Paid?", "Cost"]
 if df[null_column_check].isnull().values.any():
-    print('Null values found in Category, Currency, Description, Who Paid?, Share or Cost column.\n'
+    print('Null values found in Category, Currency, Description, Who Paid? or Cost column.\n'
           'Please populate with values'
           )
     exit()
