@@ -8,11 +8,8 @@ test_run = os.environ['TEST_RUN']
 GROUP_NAME = "Everyday spEnding" if test_run == "No" else "Test"
 group_id = sw_funcs.sw_group_id(s,GROUP_NAME)
 
-
-dates = pd.DataFrame(
-    {'date_from':
-        pd.date_range(
-        start='1/1/2020',
+date_from_list = pd.date_range(
+        start='2019-12-01',
         end = pd.to_datetime('today'),
         freq='Q'
         )
