@@ -15,6 +15,7 @@ load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
 test_run = os.environ['TEST_RUN']
+print(f'Test Run: {test_run}')
 SHEET_NAME = "Splitwise Bulk Import" if test_run == "No" else "Splitwise Bulk Import Test"
 DESC_EXPORT_RANGE = SHEET_NAME+'!H16:H1300' #Edit this to be just the cell H14
 CAT_IMPORT_RANGE = SHEET_NAME+'!J17'
