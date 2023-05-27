@@ -14,8 +14,8 @@ on:
         description: 'Is this a test?'
         # Default value if no value is explicitly provided
         options:
-        - Yes
-        - No
+        - 'Yes'
+        - 'No'
         # Input has to be provided for the workflow to run
         required: true
 env:
