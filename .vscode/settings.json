@@ -16,5 +16,7 @@
     "sqlfluff.format.enabled": true,
     "sqlfluff.ignoreLocalConfig": false,
     "sqlfluff.ignoreParsing": false,
-    "sqlfluff.linter.run": "onSave"
+    "sqlfluff.linter.run": "onSave",
+    "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
+    "editor.formatOnSave": false,
 }
