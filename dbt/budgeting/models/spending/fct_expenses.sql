@@ -1,40 +1,46 @@
-with expenses as (
+WITH expenses AS (
+    SELECT * FROM {{ ref('stg_expenses') }}
+),
 
-    select * from {{ ref('stg_expenses') }}
-)
-,
-fct as (
-    select
+fct AS (
+    SELECT
         date,
         exp_id,
-        cat_name as cat_name_old,
-        subcat_name as subcat_name_old,
-        cat_name_new as cat_name,
-        subcat_name_new as subcat_name,
+        cast(exp_id AS string) AS str_exp_id,
+        cat_name AS cat_name_old,
+        subcat_name AS subcat_name_old,
+        cat_name_new AS cat_name,
+        subcat_name_new AS subcat_name,
         exp_desc,
         creation_method,
         exp_cost,
         exp_currency,
         first_name,
-        first_name as person,
+        first_name AS person,
         last_name,
         paid_share,
         owed_share,
-        owed_share_cad as amount,
-        case
-            when first_name = 'Lorcan' then paid_share else 0
-        end as lorcan_paid,
-        case
-            when first_name = 'Grace' then paid_share else 0
-        end as grace_paid,
-        case
-            when first_name = 'Lorcan' then owed_share else 0
-        end as lorcan_owed,
-        case when first_name = 'Grace' then owed_share else 0 end as grace_owed
-    from expenses
+        owed_share_cad AS amount,
+        CASE
+            WHEN first_name = 'Lorcan' THEN paid_share
+            ELSE 0
+        END AS lorcan_paid,
+        CASE
+            WHEN first_name = 'Grace' THEN paid_share
+            ELSE 0
+        END AS grace_paid,
+        CASE
+            WHEN first_name = 'Lorcan' THEN owed_share
+            ELSE 0
+        END AS lorcan_owed,
+        CASE
+            WHEN first_name = 'Grace' THEN owed_share
+            ELSE 0
+        END AS grace_owed
+    FROM expenses
 ),
 
-potential_duplicates as (
+potential_duplicates AS (
     select
         date,
         exp_cost,
@@ -47,23 +53,44 @@ potential_duplicates as (
         from fct
         )
     group by 1, 2
-
 ),
 
-fct_2 as (
-    select
+fct_with_windows AS (
+    SELECT
         fct.*,
-        case
-            when cat_name in ('Holiday', 'Asset', 'Immigration Costs')
-                then 0
-            else 1 end as daily_spending_flag,
+        sum(
+            fct.lorcan_paid
+        ) OVER (PARTITION BY fct.str_exp_id) AS ex_lorcan_paid,
+        sum(fct.grace_paid) OVER (PARTITION BY fct.str_exp_id) AS ex_grace_paid,
+        sum(
+            fct.lorcan_owed
+        ) OVER (PARTITION BY fct.str_exp_id) AS ex_lorcan_owed,
+        sum(fct.grace_owed) OVER (PARTITION BY fct.str_exp_id) AS ex_grace_owed,
+        CASE
+            WHEN
+                fct.cat_name IN ('Holiday', 'Asset', 'Immigration Costs') THEN 0
+            ELSE 1
+        END AS daily_spending_flag,
         case
             when potential_duplicates.pd_count > 1 then 1 else 0
-        end as potential_dup_flag
-    from fct
-    left join
-        potential_duplicates on
-            fct.date = potential_duplicates.date and fct.exp_cost = potential_duplicates.exp_cost
+        end as dup_count
+    FROM fct
+    LEFT JOIN
+        potential_duplicates ON
+            fct.date = potential_duplicates.date AND fct.exp_cost = potential_duplicates.exp_cost
+)
+,
+fct_with_hint AS (
+    SELECT
+        *,
+        CASE WHEN ex_grace_owed > 0 AND ex_lorcan_owed > 0 THEN '[S]'
+            WHEN ex_grace_owed = 0 THEN '[L]'
+            WHEN ex_lorcan_owed = 0 THEN '[G]' END AS shared_hint,
+        CASE WHEN dup_count = 1 THEN '[PD]' ELSE '' END AS dupe_hint
+    FROM fct_with_windows
 )
 
-select * from fct_2
+SELECT
+    *,
+    concat('...', shared_hint, str_exp_id, dupe_hint) AS report_desc
+FROM fct_with_hint

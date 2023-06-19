@@ -18,7 +18,6 @@ with date as (
 
 expense as (
     select * from {{ ref('fct_expenses') }}
---where big_purchase_flag = 0
 ),
 
 expense_monthly as (
