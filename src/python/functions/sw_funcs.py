@@ -77,10 +77,10 @@ def sw_export_data(s,group_id,date_after,date_before,limit = 0):
     rows = []
     for exp in export:
         #date
-        date = exp.getDate()
-        deleted_date = exp.getDeletedAt()
-        created_date = exp.getCreatedAt()
-        updated_date = exp.getUpdatedAt()
+        date_dt = exp.getDate()
+        deleted_dt = exp.getDeletedAt()
+        created_dt = exp.getCreatedAt()
+        updated_dt = exp.getUpdatedAt()
         #expense info
         exp_id = exp.getId()
         cat = exp.getCategory()
@@ -103,37 +103,102 @@ def sw_export_data(s,group_id,date_after,date_before,limit = 0):
             owed_share = user.getOwedShare()
 
             rows.append(
-                [date, deleted_date, created_date, updated_date, exp_id,
+                [date_dt, deleted_dt, created_dt, updated_dt, exp_id,
                 subcat_id,subcat_name,exp_desc, creation_method, exp_cost,
                 exp_currency,user_id, first_name,last_name,net_balance,paid_share,
                 owed_share])
 
     # Clean Export
     export_df = pd.DataFrame(rows,
-    columns=["date", "deleted_date", "created_date","updated_date", "exp_id",
+    columns=["date_dt", "deleted_dt", "created_dt","updated_dt", "exp_id",
     "subcat_id", "subcat_name","exp_desc", "creation_method", "exp_cost",
     "exp_currency","user_id", "first_name","last_name","net_balance",
     "paid_share", "owed_share"])
 
     df_dtypes = {
-    "date" : "datetime64[ns]",
-    "deleted_date" : "datetime64[ns]" ,
-    "created_date" : "datetime64[ns]",
-    "updated_date" : "datetime64[ns]" ,
+    "date_dt" : "datetime64[ns]",
+    "deleted_dt" : "datetime64[ns]" ,
+    "created_dt" : "datetime64[ns]",
+    "updated_dt" : "datetime64[ns]" ,
     "exp_id" : "int64",
     "subcat_id" : "int64",
-    "subcat_name" : "category",
     "exp_desc" :  "object",
     "creation_method" : "object",
     "exp_cost" : "float",
     "exp_currency" : "category",
     "user_id" : "int64",
-     "first_name" : "category",
-     "last_name" : "category",
-     "net_balance" : "float",
-     "paid_share": "float",
-     "owed_share" : "float"
+    "first_name" : "category",
+    "last_name" : "category",
+    "net_balance" : "float",
+    "paid_share": "float",
+    "owed_share" : "float"
      }
     export_df = export_df.astype(df_dtypes)
-    #TODO remove subcat_name as this can be derived from cat_dim table
+    return export_df
+
+def sw_export_data_v2(s,group_id,updated_before, updated_after, limit = 0):
+    export = s.getExpenses(
+        group_id = group_id, limit=limit, updated_before = updated_before,
+        updated_after = updated_after
+        ) #10000
+    rows = []
+    for exp in export:
+        #date
+        date_dt = exp.getDate()
+        deleted_dt = exp.getDeletedAt()
+        created_dt = exp.getCreatedAt()
+        updated_dt = exp.getUpdatedAt()
+        #expense info
+        exp_id = exp.getId()
+        cat = exp.getCategory()
+        subcat_id = cat.getId()
+        subcat_name = cat.getName()
+        exp_desc = exp.getDescription()
+        # Other
+        creation_method = exp.getCreationMethod()
+        # Cost
+        exp_cost = exp.getCost()
+        exp_currency = exp.getCurrencyCode()
+        # User info
+        users = exp.getUsers()
+        for user in users:
+            user_id = user.getId()
+            first_name = user.getFirstName()
+            last_name = user.getLastName()
+            net_balance = user.getNetBalance()
+            paid_share = user.getPaidShare()
+            owed_share = user.getOwedShare()
+
+            rows.append(
+                [date_dt, deleted_dt, created_dt, updated_dt, exp_id,
+                subcat_id,subcat_name,exp_desc, creation_method, exp_cost,
+                exp_currency,user_id, first_name,last_name,net_balance,paid_share,
+                owed_share])
+
+    # Clean Export
+    export_df = pd.DataFrame(rows,
+    columns=["date_dt", "deleted_dt", "created_dt","updated_dt", "exp_id",
+    "subcat_id", "subcat_name","exp_desc", "creation_method", "exp_cost",
+    "exp_currency","user_id", "first_name","last_name","net_balance",
+    "paid_share", "owed_share"])
+
+    df_dtypes = {
+    "date_dt" : "datetime64[ns]",
+    "deleted_dt" : "datetime64[ns]" ,
+    "created_dt" : "datetime64[ns]",
+    "updated_dt" : "datetime64[ns]" ,
+    "exp_id" : "int64",
+    "subcat_id" : "int64",
+    "exp_desc" :  "object",
+    "creation_method" : "object",
+    "exp_cost" : "float",
+    "exp_currency" : "category",
+    "user_id" : "int64",
+    "first_name" : "category",
+    "last_name" : "category",
+    "net_balance" : "float",
+    "paid_share": "float",
+    "owed_share" : "float"
+     }
+    export_df = export_df.astype(df_dtypes)
     return export_df

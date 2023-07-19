@@ -8,7 +8,7 @@ load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
 sheet_name = 'Income'
-sheet_range = "A9:G1000"
+sheet_range = "A6:G1000"
 gsheet_export_range = f'{sheet_name}!{sheet_range}'
 
 keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
@@ -25,6 +25,10 @@ client = google_funcs.big_query_connect(keys)
 # Upload income
 google_funcs.big_query_load_spending(
                     client,
-                    table_id = "budgeting.test",
+                    table_id = "budgeting.t_income_stage",
                     dataframe = df,
                     write_disposition = "WRITE_TRUNCATE")
+
+# Merge into Fact
+google_funcs.big_query_query(keys, 'src/sql/dml/income_merge.sql', True)
+google_funcs.big_query_query(keys, "delete budgeting.t_income_stage WHERE true")

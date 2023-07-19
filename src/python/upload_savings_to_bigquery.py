@@ -12,14 +12,10 @@ sheet_name = 'Balances Snapshot'
 sheet_range = "A6:H1000"
 gsheet_export_range = f'{sheet_name}!{sheet_range}'
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-GSHEET_EXPORT_RANGE = 'Savings!A1:AA1000' #Edit this to be just the cell G14
 
 keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 
 df = google_funcs.gsheet_export(keys,spreadsheet_id,gsheet_export_range)
-
-col = ['date', 'person', 'source', 'product','category', 'person',	'amount', 'currency']
-# Unpivot data
 
 # Convert Data types
 df =  df.convert_dtypes()
@@ -31,8 +27,11 @@ df = df[df.amount.notnull()]
 
 client = google_funcs.big_query_connect(keys)
 
-# Upload expenses
+# Upload balances to Stage
 google_funcs.big_query_load_spending(
                     client,
                     table_id = "budgeting.t_balances_stage",
                     dataframe = df)
+# Merge into Fact
+google_funcs.big_query_query(keys, 'src/sql/dml/balances_merge.sql', True)
+google_funcs.big_query_query(keys, "delete budgeting.t_balances_stage WHERE true")

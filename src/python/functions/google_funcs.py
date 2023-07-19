@@ -87,6 +87,24 @@ def big_query_export(keys,query):
     query_job = client.query(query).to_dataframe()
     return query_job
 
+def read_text_from_file(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            text = file.read()
+        return text
+    except FileNotFoundError:
+        print("File not found.")
+    except IOError:
+        print("Error reading the file.")
+
+def big_query_query(keys, query, query_is_file_path = False):
+    if query_is_file_path:
+        query = read_text_from_file(query)
+    client = big_query_connect(keys)
+    query_job = client.query(query)
+    rows = query_job.result() 
+    return rows
+
 def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE_TRUNCATE"):
 
     job_config = bigquery.LoadJobConfig(

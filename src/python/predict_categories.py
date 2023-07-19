@@ -14,23 +14,29 @@ load_dotenv()
 ################################################################################
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-test_run = os.environ['TEST_RUN']
-print(f'Test Run: {test_run}')
-SHEET_NAME = "Splitwise Bulk Import" if test_run == "No" else "Splitwise Bulk Import Test"
-DESC_EXPORT_RANGE = SHEET_NAME+'!H16:H1300' #Edit this to be just the cell H14
-CAT_IMPORT_RANGE = SHEET_NAME+'!J17'
-CONF_IMPORT_RANGE = SHEET_NAME+'!K17'
-print(SHEET_NAME)
+splitwise_group = os.environ['SPLITWISE_GROUP']
 
-keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
+sheet_name = 'Expenses'
+sheet_range = "A17:J1000"
+gsheet_export_range = f'{sheet_name}!{sheet_range}'
+DESC_EXPORT_RANGE = sheet_name+'!B17:C1300' #Edit this to be just the cell H14
+CAT_IMPORT_RANGE = sheet_name+'!E18'
+CONF_IMPORT_RANGE = sheet_name+'!F18'
+
+keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 gsheet = google_funcs.gsheet_connect(keys)
 
 df = google_funcs.gsheet_export(keys,spreadsheet_id,DESC_EXPORT_RANGE)
 
 df =  df.convert_dtypes()
+df['Description'] = df['Description'].str.title()
+df['Description'] = df['Description'] + ' ' + df['Category Codes']
+df['Description'] = df['Description'].str.strip()
 if df.empty:
     print("No descriptions added")
     exit()
+
+
 
 dtypes = {col: 'str' for col in df.columns}
 
@@ -38,8 +44,8 @@ dtypes = {col: 'str' for col in df.columns}
 # MAKE PREDICTIONS #
 ################################################################################
 
-vectorizer = pickle.load(open("vectorizer.pickle", "rb"))
-model = pickle.load(open("model.pickle", "rb"))
+vectorizer = pickle.load(open("data/vectorizer.pickle", "rb"))
+model = pickle.load(open("data/model.pickle", "rb"))
 
 descriptions = df['Description']
 descriptions = nlp_funcs.get_nlp_ready(descriptions)

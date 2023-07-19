@@ -3,5 +3,5 @@ templater = jinja
 sql_file_exts = .sql,.sql.j2,.dml,.ddl
 
 [sqlfluff.rules.capitalisation.keywords]
-capitalisation_policy = "upper"
+capitalisation_policy = "lower"
 
