@@ -59,5 +59,5 @@ accuracy = accuracy_score(y_test, y_pred)
 print(accuracy)
 
 
-pickle.dump(vectorizer, open("vectorizer.pickle", "wb"))
-pickle.dump(model, open("model.pickle", "wb"))
+pickle.dump(vectorizer, open("data/vectorizer.pickle", "wb"))
+pickle.dump(model, open("data/model.pickle", "wb"))

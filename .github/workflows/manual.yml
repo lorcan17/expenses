@@ -8,18 +8,14 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      test:
+      group:
         # Friendly description to be shown in the UI instead of 'name'
-        type: choice
-        description: 'Is this a test?'
-        # Default value if no value is explicitly provided
-        options:
-        - 'Yes'
-        - 'No'
+        type: string
+        description: 'What is the name of the Splitwise Group?'
         # Input has to be provided for the workflow to run
         required: true
 env:
-  TEST_RUN: ${{ github.event.inputs.test }}
+  SSPLITWISE_GROUP: ${{ github.event.inputs.group }}
   SPLITWISE_CONSUMER_KEY: '${{ secrets.SPLITWISE_CONSUMER_KEY }}'
   SPLITWISE_CONSUMER_SECRET_KEY: '${{ secrets.SPLITWISE_CONSUMER_SECRET_KEY }}'
   SPLITWISE_API_KEY: '${{ secrets.SPLITWISE_API_KEY }}'

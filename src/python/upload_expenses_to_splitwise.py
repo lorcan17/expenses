@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 import os
-
-import pandas as pd 
+import sys
+import pandas as pd
 from dotenv import load_dotenv
 
 from splitwise.expense import Expense
@@ -11,23 +11,24 @@ from splitwise.expense import ExpenseUser
 from functions import google_funcs, sw_funcs
 load_dotenv()
 
+
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-test_run = os.environ['TEST_RUN']
-SHEET_NAME = "Splitwise Bulk Import" if test_run == "No" else "Splitwise Bulk Import Test"
-GSHEET_EXPORT_RANGE = SHEET_NAME+'!G16:01300'
+splitwise_group = os.environ['SPLITWISE_GROUP']
+
+sheet_name = 'Expenses'
+sheet_range = "A17:J1000"
+gsheet_export_range = f'{sheet_name}!{sheet_range}'
 
 s = sw_funcs.sw_connect_api()
-
-GROUP_NAME = "Everyday spEnding" if test_run == "No" else "Test"
-group_id = sw_funcs.sw_group_id(s,GROUP_NAME)
+group_id = sw_funcs.sw_group_id(s,splitwise_group)
 LorcanId = sw_funcs.sw_current_user(s)
 GraceId = sw_funcs.sw_other_user(s,"Grace", "Williams")
 
 cat_dim = sw_funcs.sw_get_category_dim(s)
 
-keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
+keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 
-df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
+df = google_funcs.gsheet_export(keys,spreadsheet_id,gsheet_export_range)
 # Convert Data types
 df =  df.convert_dtypes()
 # Remove empty rows caused by gsheet being weird
@@ -35,8 +36,7 @@ df = df[df['Date'].notnull()]
 
 if df.empty:
     print("No expenses to upload to SplitWise")
-    exit()
-print(df.tail())
+    sys.exit()
 null_column_check = ["Category", "Currency", "Description", "Who Paid?", "Cost", "Share"]
 null_cnt = 0
 for col in null_column_check:
@@ -46,13 +46,14 @@ for col in null_column_check:
           )
         null_cnt =+ 1
 if null_cnt > 0:
-    exit()
+    raise Exception("Expenses tabs contain errors")
 
-
-df['Date'] = pd.to_datetime(df['Date'] ,errors = 'coerce',format = '%Y%m%d')
+df['Date'] = pd.to_datetime(df['Date'])
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
 df['Description'] = df['Description'].str.title()
+df['Description'] = df['Description'] + ' ' + df['Category Codes']
+df['Description'] = df['Description'].str.strip()
 
 # Add 50-50 where Share = "Split" and split is empty
 df.loc[(df["Share"]=="Split") & (df["Split"].isna()),"Split"] = "50-50"
@@ -171,4 +172,4 @@ for ind in df.index:
 
 new_expense_ids_df  = pd.DataFrame(expense_desc, columns=['Description'])
 new_expense_ids_df['ID'] = new_expenses_ids
-#new_expense_ids_df.to_csv("new_ids.csv")
+

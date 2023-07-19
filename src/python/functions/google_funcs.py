@@ -37,21 +37,40 @@ def gsheet_connect(keys):
 
     return gsheet
 
-def gsheet_export(keys,spreadsheet_id,gsheet_export_range):
+def gsheet_export(keys,spreadsheet_id,gsheet_export_range, export_as = "df"):
     # export transaction data from google sheet
     gsheet = gsheet_connect(keys)
     result = gsheet.values().get(spreadsheetId=spreadsheet_id,
                                 range=gsheet_export_range).execute()
     values = result.get('values', [])
+    if export_as == 'dict':
+        result_dict = {}
+        for pair in values:
+            
+            try:
+                key = pair[0]
+                value = pair[1]
+                result_dict[key] = value
+            except:
+                continue       
+        return result_dict
+    elif export_as == 'df':
+        # Format as DF and promote first row as headers
+        gsheet_df = pd.DataFrame(values)
+        header_row = 0
+        gsheet_df.columns = gsheet_df.iloc[header_row]
+        gsheet_df = gsheet_df.drop(header_row)
+        gsheet_df = gsheet_df.reset_index(drop=True)
+        gsheet_df.replace('', pd.NA, inplace=True)
+        return gsheet_df
+    
+def get_config(spreadsheet_id, sheet_name, range):
+    spreadsheet_id = "1QVfZVyLSsMksl2xiSHMHPWBK5ITHqs53F0vQxqlcuak"
+    export_range = f"{sheet_name}!{range}"
+    keys = decrypt_creds("./config/encrypt_google_cloud_credentials.json")
+    config = gsheet_export(keys,spreadsheet_id,export_range, export_as = 'dict')
 
-    # Format as DF and promote first row as headers
-    gsheet_df = pd.DataFrame(values)
-    header_row = 0
-    gsheet_df.columns = gsheet_df.iloc[header_row]
-    gsheet_df = gsheet_df.drop(header_row)
-    gsheet_df = gsheet_df.reset_index(drop=True)
-    gsheet_df.replace('', pd.NA, inplace=True)
-    return gsheet_df
+    return config
 
 def big_query_connect(keys):
     SCOPES = ['https://www.googleapis.com/auth/bigquery']
@@ -69,15 +88,7 @@ def big_query_export(keys,query):
     return query_job
 
 def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE_TRUNCATE"):
-    # Example data
-    #df = pd.DataFrame({'a': [1,2,4], 'b': ['123', '456', '000']})
 
-# Define table name, in format dataset.table_name
-
-# Load data to BQ
-    #job = client.load_table_from_dataframe(df, table)
-    #return
-    #job.result()
     job_config = bigquery.LoadJobConfig(
     write_disposition=write_disposition,
     )
