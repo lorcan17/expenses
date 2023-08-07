@@ -19,7 +19,7 @@ df = google_funcs.gsheet_export(keys,spreadsheet_id,gsheet_export_range)
 
 # Convert Data types
 df =  df.convert_dtypes()
-df['date'] = pd.to_datetime(df['date'])
+df['date_dt'] = pd.to_datetime(df['date_dt'])
 df['amount'] = df['amount'].str.replace(',', '')
 df['amount'] = pd.to_numeric(df['amount'])
 # Remove nulls
