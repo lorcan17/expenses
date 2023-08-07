@@ -28,8 +28,8 @@ WHEN NOT MATCHED THEN
             amount,
             currency,
             process,
-            insert_dt,
-            update_dt
+            etl_insert_dt,
+            etl_update_dt
         )
     VALUES (
         GENERATE_UUID(),

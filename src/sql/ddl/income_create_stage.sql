@@ -8,8 +8,8 @@ CREATE TABLE `python-splitwise.budgeting.t_income_stage`
     amount FLOAT64,
     currency STRING,
     process STRING,
-    insert_dt DATE DEFAULT CURRENT_DATE(),
-    update_dt DATE DEFAULT CURRENT_DATE()
+    etl_insert_dt DATE DEFAULT CURRENT_DATE(),
+    etl_update_dt DATE DEFAULT CURRENT_DATE()
 
 )
 OPTIONS (

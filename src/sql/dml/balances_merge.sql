@@ -27,8 +27,8 @@ WHEN NOT MATCHED THEN
         category,
         amount,
         currency,
-        insert_dt,
-        update_dt_dt
+        etl_insert_dt,
+        etl_update_dt
     )
     VALUES (
         GENERATE_UUID(),
