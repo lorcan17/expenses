@@ -14,7 +14,6 @@ load_dotenv()
 ################################################################################
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-splitwise_group = os.environ['SPLITWISE_GROUP']
 
 sheet_name = 'Expenses'
 sheet_range = "A17:J1000"
