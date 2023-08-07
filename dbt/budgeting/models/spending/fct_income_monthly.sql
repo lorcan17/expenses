@@ -17,7 +17,7 @@ with date as (
 ),
 
 income as (
-    select * from {{ source('bigquery', 'gsheet_income') }}
+    select * from {{ source('bigquery', 't_income_fact') }}
 ),
 
 income_monthly as (
@@ -33,7 +33,7 @@ income_monthly as (
     left join
         income on
             DATE_TRUNC(
-                income.date, month
+                income.date_dt, month
             ) = date.month_date and income.person = date.person
     group by 1, 2, 3, 4, 5, 6
 ),

@@ -41,18 +41,18 @@ fct AS (
 ),
 
 potential_duplicates AS (
-    select
+    SELECT
         date,
         exp_cost,
-        count(*) as pd_count
-    from (
-        select distinct
+        count(*) AS pd_count
+    FROM (
+        SELECT DISTINCT
             exp_id,
             date,
             exp_cost
-        from fct
-        )
-    group by 1, 2
+        FROM fct
+    )
+    GROUP BY 1, 2
 ),
 
 fct_with_windows AS (
@@ -71,21 +71,24 @@ fct_with_windows AS (
                 fct.cat_name IN ('Holiday', 'Asset', 'Immigration Costs') THEN 0
             ELSE 1
         END AS daily_spending_flag,
-        case
-            when potential_duplicates.pd_count > 1 then 1 else 0
-        end as dup_count
+        CASE
+            WHEN potential_duplicates.pd_count > 1 THEN 1 ELSE 0
+        END AS dup_count
     FROM fct
     LEFT JOIN
         potential_duplicates ON
-            fct.date = potential_duplicates.date AND fct.exp_cost = potential_duplicates.exp_cost
+        fct.date = potential_duplicates.date
+        AND fct.exp_cost = potential_duplicates.exp_cost
 )
 ,
 fct_with_hint AS (
     SELECT
         *,
-        CASE WHEN ex_grace_owed > 0 AND ex_lorcan_owed > 0 THEN '[S]'
+        CASE
+            WHEN ex_grace_owed > 0 AND ex_lorcan_owed > 0 THEN '[S]'
             WHEN ex_grace_owed = 0 THEN '[L]'
-            WHEN ex_lorcan_owed = 0 THEN '[G]' END AS shared_hint,
+            WHEN ex_lorcan_owed = 0 THEN '[G]'
+        END AS shared_hint,
         CASE WHEN dup_count = 1 THEN '[PD]' ELSE '' END AS dupe_hint
     FROM fct_with_windows
 )

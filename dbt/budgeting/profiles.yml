@@ -3,7 +3,7 @@
     dev:
       dataset: budgeting
       fixed_retries: 1
-      keyfile: ../../google_cloud_credentials.json
+      keyfile: ../../config/google_cloud_credentials.json
       location: US
       method: service-account
       priority: interactive

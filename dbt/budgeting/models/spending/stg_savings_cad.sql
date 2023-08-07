@@ -3,22 +3,22 @@ with savings as (
     select * from {{ ref('stg_savings') }}
 )
 ,
-exchange_rate as (
+rates as (
 
     select * from {{ source('bigquery', 'exchange_rate_dim') }}
 
 )
 
 select
-    savings.date,
+    savings.date_dt as date,
     savings.date_to,
-    person,
-    bank,
-    product,
-    amount,
+    savings.person,
+    savings.source,
+    savings.product,
+    savings.amount,
     case
-        when currency = 'CAD' then amount else (1 / cad_gbp_rate) * amount
+        when savings.currency = 'CAD' then savings.amount else (1 / rates.cad_gbp_rate) * savings.amount
     end as amount_cad
 from savings
 left join
-    exchange_rate on DATE_TRUNC(savings.date, month) = exchange_rate.date
+    rates on DATE_TRUNC(savings.date_dt, month) = rates.date

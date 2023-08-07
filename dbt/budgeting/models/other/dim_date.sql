@@ -1,9 +1,9 @@
 with max_date as (
 
     select
-        date(min(date)) as min_date_dt,
-        date(max(date)) as max_date_dt
-    from {{ source('bigquery', 'splitwise_expenses') }}
+        date(min(date_dt)) as min_date_dt,
+        date(max(date_dt)) as max_date_dt
+    from {{ source('bigquery', 't_expenses_fact') }}
 
 )
 ,
