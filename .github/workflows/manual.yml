@@ -15,7 +15,7 @@ on:
         # Input has to be provided for the workflow to run
         required: true
 env:
-  SSPLITWISE_GROUP: ${{ github.event.inputs.group }}
+  SPLITWISE_GROUP: ${{ github.event.inputs.group }}
   SPLITWISE_CONSUMER_KEY: '${{ secrets.SPLITWISE_CONSUMER_KEY }}'
   SPLITWISE_CONSUMER_SECRET_KEY: '${{ secrets.SPLITWISE_CONSUMER_SECRET_KEY }}'
   SPLITWISE_API_KEY: '${{ secrets.SPLITWISE_API_KEY }}'
