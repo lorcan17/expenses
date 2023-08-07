@@ -1,6 +1,8 @@
 MERGE INTO budgeting.t_expenses_fact AS t
 USING budgeting.t_expenses_stage AS s
-    ON t.exp_id = s.exp_id
+    ON
+        t.exp_id = s.exp_id
+        AND t.user_id = s.user_id
 
 WHEN MATCHED AND (
     t.date_dt != s.date_dt
@@ -10,7 +12,6 @@ WHEN MATCHED AND (
     OR t.creation_method != s.creation_method
     OR t.exp_cost != s.exp_cost
     OR t.exp_currency != s.exp_currency
-    OR t.user_id != s.user_id
     OR t.first_name != s.first_name
     OR t.last_name != s.last_name
     OR t.net_balance != s.net_balance
@@ -29,7 +30,6 @@ THEN
         t.creation_method = s.creation_method,
         t.exp_cost = s.exp_cost,
         t.exp_currency = s.exp_currency,
-        t.user_id = s.user_id,
         t.first_name = s.first_name,
         t.last_name = s.last_name,
         t.net_balance = s.net_balance,
