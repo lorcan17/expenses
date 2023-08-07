@@ -5,7 +5,8 @@ from functions import google_funcs, sw_funcs
 s = sw_funcs.sw_connect_api()
 
 
-GROUP_NAME = "Everyday spEnding" 
+splitwise_group = 'Everyday expenses'
+print(f'Pulling from {splitwise_group}')
 group_id = sw_funcs.sw_group_id(s,GROUP_NAME)
 
 date_from_list = pd.date_range(

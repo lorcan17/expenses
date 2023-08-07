@@ -5,6 +5,7 @@ from functions import google_funcs, sw_funcs
 s = sw_funcs.sw_connect_api()
 
 splitwise_group = 'Everyday expenses'
+print(f'Pulling from {splitwise_group}')
 group_id = sw_funcs.sw_group_id(s,splitwise_group)
 date_from = pd.to_datetime('today') - pd.to_timedelta(190,'D')
 date_to = pd.to_datetime('today') + pd.to_timedelta(1,'D')
