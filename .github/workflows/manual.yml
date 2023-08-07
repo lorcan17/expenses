@@ -57,7 +57,7 @@ jobs:
         run: |
           python src/python/upload_exchange_rate_to_bigquery.py
       - name: Decrypt large secret
-        run: ./decrypt_secret.sh
+        run: ./bash/decrypt_secret.sh
         env:
           ENCRYPT_KEY: ${{ secrets. ENCRYPT_KEY }}
       - name: Install dependencies
