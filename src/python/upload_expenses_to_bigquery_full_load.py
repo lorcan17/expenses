@@ -4,8 +4,8 @@ from functions import google_funcs, sw_funcs
 
 s = sw_funcs.sw_connect_api()
 
-test_run = os.environ['TEST_RUN']
-GROUP_NAME = "Everyday spEnding" if test_run == "No" else "Test"
+
+GROUP_NAME = "Everyday spEnding" 
 group_id = sw_funcs.sw_group_id(s,GROUP_NAME)
 
 date_from_list = pd.date_range(
@@ -28,6 +28,7 @@ print(dates)
 for ind in dates.index:
     date_from = dates['date_from'][ind]
     date_to = dates['date_to'][ind]
+    print(f'Pushing data from {date_from} to {date_to}')
     export = sw_funcs.sw_export_data(
         s,group_id,limit = 0,
         date_before = date_to,
@@ -45,6 +46,10 @@ for ind in dates.index:
     # Upload expenses
     google_funcs.big_query_load_spending(
                         client,
-                        table_id = "budgeting.splitwise_expenses",
+                        table_id = "budgeting.t_expenses_stage",
                         dataframe = export,
                         write_disposition = WRITE_DISPOSITION)
+
+# Merge into Fact
+google_funcs.big_query_query(keys, 'src/sql/dml/expenses_merge.sql', True)
+#google_funcs.big_query_query(keys, "delete budgeting.t_expenses_stage WHERE true")                
