@@ -103,7 +103,9 @@ def big_query_query(keys, query, query_is_file_path = False):
     client = big_query_connect(keys)
     query_job = client.query(query)
     rows = query_job.result() 
-    return rows
+    if query_job.statement_type == 'MERGE':
+        print(query_job.dml_stats)
+    return query_job
 
 def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE_TRUNCATE"):
 
