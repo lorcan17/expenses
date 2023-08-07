@@ -39,4 +39,4 @@ jobs:
       - run: pip install -r requirements.txt
       - name: update expenses py script
         run: |
-          python src/predict_categories.py
+          python src/python/predict_categories.py
