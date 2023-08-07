@@ -38,7 +38,7 @@ for ind in dates.index:
     else:
         WRITE_DISPOSITION = 'WRITE_APPEND'
 
-    keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
+    keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
     google_funcs.gsheet_connect(keys)
     client = google_funcs.big_query_connect(keys)
 

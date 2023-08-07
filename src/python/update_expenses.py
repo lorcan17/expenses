@@ -13,7 +13,7 @@ s = sw_funcs.sw_connect_api()
 
 cat_dim = sw_funcs.sw_get_category_dim(s)
 
-keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
+keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 
 df = google_funcs.gsheet_export(keys,spreadsheet_id,GSHEET_EXPORT_RANGE)
 

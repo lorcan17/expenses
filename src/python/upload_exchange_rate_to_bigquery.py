@@ -19,7 +19,7 @@ def get_rate(date) -> float:
 
 df['cad_gbp_rate'] = df['date'].apply(get_rate)
 
-keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
+keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 google_funcs.gsheet_connect(keys)
 client = google_funcs.big_query_connect(keys)
 

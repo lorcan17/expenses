@@ -9,7 +9,7 @@ df = df.rename(columns = {"cat_name: subcat_name": "cat_name_subcat_name"})
 
 # Convert Data types
 
-keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
+keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 
 client = google_funcs.big_query_connect(keys)
 
