@@ -15,7 +15,7 @@ THEN
         t.category = s.category,
         t.amount = s.amount,
         t.currency = s.currency,
-        t.update_dt = CURRENT_DATE()
+        t.etl_update_dt = CURRENT_DATE()
 
 WHEN NOT MATCHED THEN
     INSERT (

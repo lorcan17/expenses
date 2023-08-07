@@ -15,7 +15,7 @@ WHEN MATCHED AND (
         t.amount = s.amount,
         t.currency = s.currency,
         t.process = s.process,
-        t.update_dt = CURRENT_DATE()
+        t.etl_update_dt = CURRENT_DATE()
 
 WHEN NOT MATCHED THEN
     INSERT
