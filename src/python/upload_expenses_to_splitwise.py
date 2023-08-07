@@ -15,6 +15,8 @@ load_dotenv()
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
 splitwise_group = os.environ['SPLITWISE_GROUP']
 
+print(f'Uploading to splitwise group {splitwise_group}')
+
 sheet_name = 'Expenses'
 sheet_range = "A17:J1000"
 gsheet_export_range = f'{sheet_name}!{sheet_range}'
