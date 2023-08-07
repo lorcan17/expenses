@@ -1,7 +1,7 @@
 CREATE TABLE `python-splitwise.budgeting.t_balances_stage`
 (
     id STRING,
-    date_dt DATE,
+    date_dt DATETIME,
     source STRING,
     product STRING,
     category STRING,
