@@ -6,7 +6,11 @@ USING budgeting.t_income_stage AS s
         AND t.category = s.category
         AND t.person = s.person
 
-WHEN MATCHED THEN
+WHEN MATCHED AND (
+    t.amount != s.amount
+    OR t.currency != s.currency
+    OR t.process != s.process
+) THEN
     UPDATE SET
         t.amount = s.amount,
         t.currency = s.currency,

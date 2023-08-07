@@ -5,7 +5,12 @@ USING budgeting.t_balances_stage AS s
         AND t.person = s.person
         AND t.source = s.source
         AND t.product = s.product
-WHEN MATCHED THEN
+WHEN MATCHED AND (
+    t.category = s.category
+    OR t.amount = s.amount
+    OR t.currency = s.currency
+)
+THEN
     UPDATE SET
         t.category = s.category,
         t.amount = s.amount,
