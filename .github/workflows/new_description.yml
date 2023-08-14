@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Predict Categories
+name: Update Descriptions
 
 on: workflow_dispatch
 
