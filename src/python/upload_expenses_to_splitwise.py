@@ -18,7 +18,7 @@ splitwise_group = os.environ['SPLITWISE_GROUP']
 print(f'Uploading to splitwise group {splitwise_group}')
 
 sheet_name = 'Expenses'
-sheet_range = "A17:J1000"
+sheet_range = "A17:K1000"
 gsheet_export_range = f'{sheet_name}!{sheet_range}'
 
 s = sw_funcs.sw_connect_api()
@@ -50,11 +50,11 @@ for col in null_column_check:
 if null_cnt > 0:
     raise Exception("Expenses tabs contain errors")
 
+df['Code'] = df['Code'].fillna('')
 df['Date'] = pd.to_datetime(df['Date'])
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
-df['Description'] = df['Description'].str.title()
-df['Description'] = df['Description'] + ' ' + df['Category Codes']
+df['Description'] = df['Description'] + ' ' + df['Code']
 df['Description'] = df['Description'].str.strip()
 
 # Add 50-50 where Share = "Split" and split is empty

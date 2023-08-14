@@ -139,3 +139,15 @@ def big_query_load_spending(client,table_id,dataframe,write_disposition = "WRITE
     table = client.get_table(table_id)  # Make an API request.
     print(
     f"Loaded {table.num_rows} rows and {len(table.schema)} columns to {table_id}")
+
+def import_column(keys, df,col,spreadsheet_id, gsheet_import_range):
+    gsheet = gsheet_connect(keys)
+    data = [df[col].values.tolist()]
+    value_range_body = {"values": data,
+                    "majorDimension": "COLUMNS"}
+
+    gsheet.values().update(spreadsheetId=spreadsheet_id,
+                            range=gsheet_import_range,
+                            valueInputOption='RAW',
+                            body = value_range_body
+                            ).execute()
