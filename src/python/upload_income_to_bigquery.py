@@ -1,5 +1,5 @@
 import os
-
+import sys
 import pandas as pd
 from dotenv import load_dotenv
 from functions import google_funcs
@@ -13,6 +13,10 @@ gsheet_export_range = f'{sheet_name}!{sheet_range}'
 
 keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 df = google_funcs.gsheet_export(keys,spreadsheet_id,gsheet_export_range)
+
+if df.empty:
+    print("No income to upload")
+    sys.exit()
 
 # Convert Data types
 df =  df.convert_dtypes()

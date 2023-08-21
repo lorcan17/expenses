@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import os
-
+import sys
 import pandas as pd
 from dotenv import load_dotenv
 from functions import google_funcs
@@ -16,7 +16,9 @@ spreadsheet_id = os.environ['GSHEET_SHEET_ID']
 keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 
 df = google_funcs.gsheet_export(keys,spreadsheet_id,gsheet_export_range)
-
+if df.empty:
+    print("No balances to upload")
+    sys.exit()
 # Convert Data types
 df =  df.convert_dtypes()
 df['date_dt'] = pd.to_datetime(df['date_dt'])
