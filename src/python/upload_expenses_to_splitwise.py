@@ -18,7 +18,7 @@ splitwise_group = os.environ['SPLITWISE_GROUP']
 print(f'Uploading to splitwise group {splitwise_group}')
 
 sheet_name = 'Expenses'
-sheet_range = "A17:K1000"
+sheet_range = "A17:L1000"
 gsheet_export_range = f'{sheet_name}!{sheet_range}'
 
 s = sw_funcs.sw_connect_api()
@@ -51,6 +51,7 @@ if null_cnt > 0:
     raise Exception("Expenses tabs contain errors")
 
 df['Code'] = df['Code'].fillna('')
+df['Details'] = df['Details'].fillna('')
 df['Date'] = pd.to_datetime(df['Date'])
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
@@ -82,7 +83,6 @@ for ind in new_expenses_df.index:
     share = new_expenses_df['Share'][ind]
     split_left = new_expenses_df['split_left'][ind]
     split_right = new_expenses_df['split_right'][ind]
-    
     equal_cost = round(cost * (50/100),2)
     equal_cost2 = cost - equal_cost
     
@@ -130,6 +130,7 @@ for ind in df.index:
     date = df['Date'][ind]
     #print(ind + 1)
     desc = df['Description'][ind]
+    details = new_expenses_df['Details'][ind]
     #print(desc)
     cost = df['Cost'][ind]
     lorcan_paid = df['Lorcan Paid'][ind]
@@ -141,6 +142,8 @@ for ind in df.index:
     expense = Expense()
     expense.setCost(cost)
     expense.setDescription(desc)
+    if details != '':
+        expense.setDetails(details)
     expense.setCurrencyCode(currency)
     expense.group_id = group_id
     expense.date = date

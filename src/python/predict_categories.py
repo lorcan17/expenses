@@ -17,8 +17,8 @@ spreadsheet_id = os.environ['GSHEET_SHEET_ID']
 
 sheet_name = 'Expenses'
 DESC_EXPORT_RANGE = sheet_name+'!D17:E1300' #Edit this to be just the cell H14
-CAT_IMPORT_RANGE = sheet_name+'!F18'
-CONF_IMPORT_RANGE = sheet_name+'!G18'
+CAT_IMPORT_RANGE = sheet_name+'!G18'
+CONF_IMPORT_RANGE = sheet_name+'!H18'
 
 keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 gsheet = google_funcs.gsheet_connect(keys)
