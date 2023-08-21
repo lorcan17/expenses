@@ -33,11 +33,21 @@ def sw_other_user(s, first_name, last_name):
 
 def sw_group_id(s, group_name):
     groups = s.getGroups()
+    group_found = False
     for x in groups:
         if x.getName().lower() == group_name.lower():
             id = x.getId()
+            group_found = True
             return id
-
+    if not group_found:
+        raise Exception("Group name not found")
+    
+def sw_group_name(s, group_id):
+    groups = s.getGroups()
+    for x in groups:
+        if x.getId() == group_id:
+            return x.getName()
+            
 def sw_get_category_dim(s):
     """Create a Dataframe with all Splitwise Categories, with IDs"""
     rows = []
@@ -75,6 +85,7 @@ def sw_export_data(s,group_id,date_after,date_before,limit = 0):
         dated_after = date_after
         ) #10000
     rows = []
+    group_name = sw_group_name(s,group_id)
     for exp in export:
         #date
         date_dt = exp.getDate()
@@ -87,6 +98,8 @@ def sw_export_data(s,group_id,date_after,date_before,limit = 0):
         subcat_id = cat.getId()
         subcat_name = cat.getName()
         exp_desc = exp.getDescription()
+        exp_details = exp.getDetails()
+        exp_details = None if exp_details == '' else exp_details
         # Other
         creation_method = exp.getCreationMethod()
         # Cost
@@ -104,14 +117,14 @@ def sw_export_data(s,group_id,date_after,date_before,limit = 0):
 
             rows.append(
                 [date_dt, deleted_dt, created_dt, updated_dt, exp_id,
-                subcat_id,subcat_name,exp_desc, creation_method, exp_cost,
+                subcat_id,subcat_name,exp_desc, exp_details, creation_method, group_id, group_name, exp_cost,
                 exp_currency,user_id, first_name,last_name,net_balance,paid_share,
                 owed_share])
 
     # Clean Export
     export_df = pd.DataFrame(rows,
     columns=["date_dt", "deleted_dt", "created_dt","updated_dt", "exp_id",
-    "subcat_id", "subcat_name","exp_desc", "creation_method", "exp_cost",
+    "subcat_id", "subcat_name","exp_desc", "exp_details", "creation_method", "group_id", "group_name", "exp_cost",
     "exp_currency","user_id", "first_name","last_name","net_balance",
     "paid_share", "owed_share"])
 
@@ -123,7 +136,10 @@ def sw_export_data(s,group_id,date_after,date_before,limit = 0):
     "exp_id" : "int64",
     "subcat_id" : "int64",
     "exp_desc" :  "object",
+    "exp_details": "object",
     "creation_method" : "object",
+    "group_id" : "int64", 
+    "group_name" : "object",
     "exp_cost" : "float",
     "exp_currency" : "category",
     "user_id" : "int64",
@@ -133,8 +149,10 @@ def sw_export_data(s,group_id,date_after,date_before,limit = 0):
     "paid_share": "float",
     "owed_share" : "float"
      }
+    
     export_df = export_df.astype(df_dtypes)
     return export_df
+
 
 def sw_export_data_v2(s,group_id,updated_before, updated_after, limit = 0):
     export = s.getExpenses(
@@ -142,6 +160,7 @@ def sw_export_data_v2(s,group_id,updated_before, updated_after, limit = 0):
         updated_after = updated_after
         ) #10000
     rows = []
+    group_name = sw_group_name(s,group_id)
     for exp in export:
         #date
         date_dt = exp.getDate()
@@ -154,6 +173,8 @@ def sw_export_data_v2(s,group_id,updated_before, updated_after, limit = 0):
         subcat_id = cat.getId()
         subcat_name = cat.getName()
         exp_desc = exp.getDescription()
+        exp_details = exp.getDetails()
+        exp_details = None if exp_details == '' else exp_details
         # Other
         creation_method = exp.getCreationMethod()
         # Cost
@@ -171,14 +192,14 @@ def sw_export_data_v2(s,group_id,updated_before, updated_after, limit = 0):
 
             rows.append(
                 [date_dt, deleted_dt, created_dt, updated_dt, exp_id,
-                subcat_id,subcat_name,exp_desc, creation_method, exp_cost,
+                subcat_id,subcat_name,exp_desc, exp_details, creation_method, group_id, group_name, exp_cost,
                 exp_currency,user_id, first_name,last_name,net_balance,paid_share,
                 owed_share])
 
     # Clean Export
     export_df = pd.DataFrame(rows,
     columns=["date_dt", "deleted_dt", "created_dt","updated_dt", "exp_id",
-    "subcat_id", "subcat_name","exp_desc", "creation_method", "exp_cost",
+    "subcat_id", "subcat_name","exp_desc", "exp_details", "creation_method", "group_id", "group_name", "exp_cost",
     "exp_currency","user_id", "first_name","last_name","net_balance",
     "paid_share", "owed_share"])
 
@@ -190,7 +211,10 @@ def sw_export_data_v2(s,group_id,updated_before, updated_after, limit = 0):
     "exp_id" : "int64",
     "subcat_id" : "int64",
     "exp_desc" :  "object",
+    "exp_details": "object",
     "creation_method" : "object",
+    "group_id" : "int64", 
+    "group_name" : "object",
     "exp_cost" : "float",
     "exp_currency" : "category",
     "user_id" : "int64",
@@ -200,5 +224,7 @@ def sw_export_data_v2(s,group_id,updated_before, updated_after, limit = 0):
     "paid_share": "float",
     "owed_share" : "float"
      }
+    
     export_df = export_df.astype(df_dtypes)
     return export_df
+

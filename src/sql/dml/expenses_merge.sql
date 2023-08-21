@@ -9,7 +9,10 @@ WHEN MATCHED AND (
     OR t.subcat_id != s.subcat_id
     OR t.subcat_name != s.subcat_name
     OR t.exp_desc != s.exp_desc
+    OR t.exp_details != s.exp_details
     OR t.creation_method != s.creation_method
+    OR t.group_id != s.group_id
+    OR t.group_name != s.group_name
     OR t.exp_cost != s.exp_cost
     OR t.exp_currency != s.exp_currency
     OR t.first_name != s.first_name
@@ -27,7 +30,10 @@ THEN
         t.subcat_id = s.subcat_id,
         t.subcat_name = s.subcat_name,
         t.exp_desc = s.exp_desc,
+        t.exp_details = s.exp_details,
         t.creation_method = s.creation_method,
+        t.group_id = s.group_id,
+        t.group_name = s.group_name,
         t.exp_cost = s.exp_cost,
         t.exp_currency = s.exp_currency,
         t.first_name = s.first_name,
@@ -49,7 +55,10 @@ THEN
             subcat_id,
             subcat_name,
             exp_desc,
+            exp_details,
             creation_method,
+            group_id,
+            group_name,
             exp_cost,
             exp_currency,
             user_id,
@@ -70,7 +79,10 @@ THEN
         s.subcat_id,
         s.subcat_name,
         s.exp_desc,
+        s.exp_details,
         s.creation_method,
+        s.group_id,
+        s.group_name,
         s.exp_cost,
         s.exp_currency,
         s.user_id,
