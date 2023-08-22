@@ -1,64 +1,75 @@
-# Expenses
-Automate expenses tracking
+# Expenses Automation Guide
 
-# Get set up
-Encrypt G Cloud Credentials using encrypt.py
-Ensure you keep key safe
-Add env.example variables to .env files and github secrets
-Alternatively do this: https://docs.github.com/en/actions/security-guides/encrypted-secrets#limits-for-secrets
+## Getting Started
 
-## Spending
-- Export new expenses from GoogleSheet
-- Import into Splitwise
-- Export all expenses into BigQuery
+1. **Save Gsheet template in your drive**: 
+2. **Create BigQuery Project**: Use scripts in `src/sql/ddl` to create the tables
+3. **Create Google Service Account**: Use scripts in `src/sql/ddl` and add this service account to Gsheet and BigQuery project
+4. **Encrypt G Cloud Credentials**: Use `encrypt.py` to securely encrypt your Google Cloud credentials. Make sure to keep the encryption key safe.
+5. **Environment Variables**: Add environment variables from the `env.example` file to your `.env` files and GitHub secrets. Refer to the [GitHub Encrypted Secrets Documentation](https://docs.github.com/en/actions/security-guides/encrypted-secrets#limits-for-secrets) for secure handling.
 
-## Income
-- Export all income into BigQuery
+## Process
 
-# Google DataStudio
+### Expenses
 
-## Connections
-SplitWise
-GoogleCloud
-DBT
+1. **Export Expenses**: Export new expenses from your Google Sheet.
 
+2. **Import to Splitwise**: Import your expenses into Splitwise.
 
-## DBT
-brew update
-brew install git
-brew tap dbt-labs/dbt
-brew install dbt-bigquery
+3. **Pull Recently Updated Expenses from Splitwise**: Export all expenses to Google BigQuery for further analysis.
 
-pip install dbt-bigquery
-sudo rm -rf /Library/Developer/CommandLineTools
- sudo xcode-select --install
+4. **Import to BigQuery 
 
- # Spltiwise  Rules
-Description contains
-- .hol Purchased on / for a holiday -> subcat name Holiday
-- .self purchased for self care -> subcat Self care
-- .togo purchased on the go i.e coffee or sandwhich to go ->  subcat nameTo go snack / drinks
-- .imm immigration fees -> cat name Immgration Costs
-- pub. - Spent at a pub ->-> subcat name Pub
-- asset. - an item we plan to sell in the future i.e car -> cat name Asset (no less than $500 value)
+### Income
 
-# Environment
-Update environment:
+1. **Export Income**: Export all income data to Google BigQuery.
 
-`conda env export --from-history  > environment.yml`
-`conda env export --no-builds | grep -v "prefix" > environment.yml`
+#### Cleaning
 
+This is a tab where you define rules for cleaning the Bank Descriptions before uploading to Splitwise
 
-Create environment
+### Savings
 
-`conda env create -f environment.yml`
+TODO
 
-use pip freeze
-`pip3 list --format=freeze > requirements.txt`
+### Investment deposits
 
-pipreqs --force
+TODO
 
+### Assets
 
+TODO
 
-delete the test group
-https://splitwise.readthedocs.io/en/latest/user/example.html?highlight=group#creating-a-new-group
+### Update Expenses
+
+TODO
+
+## Gsheet Set up
+
+TODO
+
+## BigQuery Set up
+
+TODO
+
+## DBT Integration
+
+TODO
+
+## Google DataStudio Integration
+
+TODO
+
+## **Splitwise Rules**: Configure Splitwise rules based on expense descriptions to categorize expenses:
+
+    - `.hol`: Purchased on/for a holiday -> Subcategory: Holiday
+    - `pub.`: Spent at a pub -> Subcategory: Pub
+    - `asset.`: Item planned for future sale (e.g., car) -> Category: Asset (value >= $500)
+
+### Archived Rules
+
+    -- `.self`: Purchased for self-care -> Subcategory: Self care
+    - `.togo`: Purchased on the go (e.g., coffee, sandwich) -> Subcategory: To go snack/drinks
+    - `.imm`: Immigration fees -> Category: Immigration Costs
+    - `.work`: Work Lunches -> Subcategory: Work Lunches
+    
