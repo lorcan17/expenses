@@ -20,12 +20,10 @@ else:
 
 load_dotenv()
 
-QUERY = """select cat_name_subcat_name, exp_desc, from `budgeting.stg_expenses` a join
-`budgeting.dim_splitwise_category` b on a.subcat_id = b.subcat_id
-where extract(year from date) > extract(year from current_date()) - 2"""
-keys = google_funcs.decrypt_creds("./encrypt_google_cloud_credentials.json")
+query = "./src/sql/model.sql"
+keys = google_funcs.decrypt_creds("./config/encrypt_google_cloud_credentials.json")
 
-df = google_funcs.big_query_export(keys, QUERY)
+df = google_funcs.big_query_export(keys, query, True)
 dtypes = {col: 'str' for col in df.columns}
 
 # Create training data with descriptions and their corresponding categories
@@ -56,8 +54,26 @@ y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 
 # Print the model's accuracy
-print(accuracy)
+print(f"Accuracy of the model on a subset of the data is {accuracy:.2f}")
 
+# As overfitting is not important herewe will create a model using the entire set of data
+#
+#  Use the vectorizer to encode the entire dataset as tf-idf vectors
+X_full = vectorizer.fit_transform(stemmed_tokens)
 
-pickle.dump(vectorizer, open("data/vectorizer.pickle", "wb"))
-pickle.dump(model, open("data/model.pickle", "wb"))
+# Train a logistic regression model on the entire dataset
+model = LogisticRegression()
+model.fit(X_full, categories)
+
+# Use the  model to make predictions on the data
+y_pred = model.predict(X_full)
+
+# Evaluate the model's performance using the accuracy metric
+accuracy = accuracy_score(categories, y_pred)
+
+# Print the model's accuracy
+print(f"Accuracy on the entire dataset: {accuracy:.2f}")
+
+# Save model to 
+pickle.dump(vectorizer, open("./data/vectorizer.pickle", "wb"))
+pickle.dump(model, open("./data/model.pickle", "wb"))
