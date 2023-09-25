@@ -13,11 +13,12 @@ group_id = sw_funcs.sw_group_id(s,splitwise_group)
 
 # Get last updated date
 last_updated = google_funcs.big_query_export(keys,
-             '''SELECT DATE(MAX(updated_dt)) as date FROM python-splitwise.budgeting.t_expenses_stage''') 
+             '''SELECT DATE(MAX(updated_dt)) as date FROM python-splitwise.budgeting.t_expenses_fact''') 
 
 
 date_from = last_updated["date"][0] - pd.to_timedelta(7,'D')
 date_to = pd.to_datetime('today') + pd.to_timedelta(1,'D')
+print(f'Pulling data for expenses updated between {date_from} and {date_to}')
 export = sw_funcs.sw_export_data_v2(
     s,group_id,limit = 0,
     updated_before = date_to,
@@ -33,4 +34,5 @@ google_funcs.big_query_load_spending(
 
 # Merge into Fact
 google_funcs.big_query_query(keys, 'src/sql/dml/expenses_merge.sql', True)
-google_funcs.big_query_query(keys, "delete budgeting.t_expenses_stage WHERE true")                
+google_funcs.big_query_query(keys, "delete budgeting.t_expenses_stage WHERE true")  
+           
