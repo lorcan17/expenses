@@ -61,12 +61,24 @@ WITH RankedCategories AS (
     GROUP BY
         exp_desc,
         cat_name_subcat_name
+),
+CountedCategories AS (
+    SELECT
+        exp_desc,
+        COUNT(DISTINCT cat_name_subcat_name) as total_different_categories
+    FROM
+        RankedCategories
+    GROUP BY
+        exp_desc
 )
 SELECT
-    exp_desc,
-    cat_name_subcat_name
+    RankedCategories.exp_desc,
+    RankedCategories.cat_name_subcat_name,
+    CountedCategories.total_different_categories
 FROM
     RankedCategories
+INNER JOIN 
+    CountedCategories ON RankedCategories.exp_desc = CountedCategories.exp_desc
 WHERE rn = 1
 """
 query_job = google_funcs.big_query_query(keys, query)
@@ -77,11 +89,18 @@ result_df = query_job.to_dataframe()
 # Iterate through the result DataFrame and store most recent values in the dictionary
 for _, row in result_df.iterrows():
     most_recent_dict[row['exp_desc']] = row['cat_name_subcat_name']
+    
 
 # Map the most recent values to the original DataFrame based on Description
 df['categories'] = df['Description'].map(most_recent_dict)
+
+df = df.merge(result_df[['exp_desc', 'total_different_categories']], how='left', left_on='Description', right_on='exp_desc')
 # Set 'conf' to 1 where 'categories' is not None
-df['confidence'] = np.where(df['categories'].notnull(), 1, None)
+# Calculate the new confidence values
+df['confidence'] = 1 + 0.1 - (df['total_different_categories'] / 10)
+
+# Replace NaN values with 0
+df['confidence'] = df['confidence'].fillna(None)
 
 ################################################################################
 # MAKE PREDICTIONS FOR None VALUES #
