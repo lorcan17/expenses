@@ -99,9 +99,6 @@ df = df.merge(result_df[['exp_desc', 'total_different_categories']], how='left',
 # Calculate the new confidence values
 df['confidence'] = 1 + 0.1 - (df['total_different_categories'] / 10)
 
-# Replace NaN values with 0
-df['confidence'] = df['confidence'].fillna(None)
-
 ################################################################################
 # MAKE PREDICTIONS FOR None VALUES #
 ################################################################################
