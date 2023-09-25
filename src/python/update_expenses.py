@@ -21,6 +21,7 @@ if df.empty:
     print("No expenses to be updated")
     exit()
 
+df['delete (yes/no)'] = df['delete (yes/no)'].fillna('')
 df = df.merge(cat_dim, left_on ='new_cat', right_on = 'cat_name: subcat_name', how = 'left')
 
 s = sw_funcs.sw_connect_api()
