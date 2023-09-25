@@ -58,7 +58,6 @@ WITH RankedCategories AS (
         budgeting.dim_splitwise_category AS b
         ON a.subcat_id = b.subcat_id
     WHERE exp_desc IN ({unique_descriptions_str})
-    AND date < '2023-08-01'
     GROUP BY
         exp_desc,
         cat_name_subcat_name
