@@ -55,8 +55,8 @@ df['Details'] = df['Details'].fillna('')
 df['Date'] = pd.to_datetime(df['Date'])
 df['Cost'] = df['Cost'].str.replace(',', '')
 df['Cost'] = pd.to_numeric(df['Cost'])
-df['Description'] = df['Description'] + ' ' + df['Code']
-df['Description'] = df['Description'].str.strip()
+df['Details'] = df['Details'] + ' ' + df['Code']
+df['Details'] = df['Details'].str.strip()
 
 # Add 50-50 where Share = "Split" and split is empty
 df.loc[(df["Share"]=="Split") & (df["Split"].isna()),"Split"] = "50-50"
@@ -130,7 +130,7 @@ for ind in df.index:
     date = df['Date'][ind]
     #print(ind + 1)
     desc = df['Description'][ind]
-    details = new_expenses_df['Details'][ind]
+    details = df['Details'][ind]
     #print(desc)
     cost = df['Cost'][ind]
     lorcan_paid = df['Lorcan Paid'][ind]
@@ -175,6 +175,6 @@ for ind in df.index:
     else:
         print(f'Error: {error}')
 
-new_expense_ids_df  = pd.DataFrame(expense_desc, columns=['Description'])
-new_expense_ids_df['ID'] = new_expenses_ids
+#new_expense_ids_df  = pd.DataFrame(expense_desc, columns=['Description'])
+#new_expense_ids_df['ID'] = new_expenses_ids
 

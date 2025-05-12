@@ -7,7 +7,7 @@ from functions import google_funcs, sw_funcs
 load_dotenv()
 
 spreadsheet_id = os.environ['GSHEET_SHEET_ID']
-GSHEET_EXPORT_RANGE = 'Update Expenses!A1:T1300'
+GSHEET_EXPORT_RANGE = 'Update Expenses!A1:U1300'
 
 s = sw_funcs.sw_connect_api()
 
@@ -32,6 +32,7 @@ for ind in df.index:
     exp_id = df["exp_id"][ind]
     delete = df['delete (yes/no)'][ind]
     new_desc = df['new_desc'][ind]
+    new_details = df['new_details'][ind]
     new_cost = df['new_cost'][ind]
     new_lorcan_paid = df['new_lorcan_paid'][ind]
     new_lorcan_owed = df['new_lorcan_owed'][ind]
@@ -52,6 +53,9 @@ for ind in df.index:
     if new_desc:
         expense.setDescription(new_desc)
 
+    if new_details:
+        expense.setDetails(new_details)
+
     if new_cat:
         expense.category_id = new_subcat_id
     
@@ -71,6 +75,6 @@ for ind in df.index:
         expense.addUser(user1)
         expense.addUser(user2)
 
-    if new_desc or new_cat or new_cost or new_currency:
+    if new_desc or new_details or new_cat or new_cost or new_currency:
         s.updateExpense(expense)
         print(f'Expense {exp_id} updated')
